@@ -1,18 +1,24 @@
+import { MouseEvent } from 'react';
 import { User } from 'react-feather';
 import styled from 'styled-components';
+import { UserModal } from './UserModal';
 
 type LiveUsersProps = {
   count: number;
+  userHistory: { username: string; hexcode: string; status: 'online' | 'offline'; }[];
+  onToggleModal: () => void;
+  showUserModal: boolean;
 };
 
-const LiveUsers = ({ count }: LiveUsersProps) => {
+const LiveUsers = ({ count, userHistory, showUserModal, onToggleModal }: LiveUsersProps) => {
   return (
     <>
       {count !== 0 && (
-        <LiveUsersWrapper>
+        <LiveUsersWrapper onClick={onToggleModal}>
           <StyledUser /> {count}
         </LiveUsersWrapper>
       )}
+      {showUserModal && <UserModal users={userHistory} onClose={onToggleModal} />}
     </>
   );
 };

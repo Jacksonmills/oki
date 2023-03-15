@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { ServerMessageTypeUnion } from "../App";
+import Username from "./Username";
 
 export type MessageListProps = {
   messages: {
@@ -94,12 +95,6 @@ const List = styled.ul`
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-start;
-`;
-
-const Username = styled.span<{ hexcode?: string; }>`
-  color: ${(props) => props.hexcode ? props.hexcode : "#ffffff"};
-  font-weight: bold;
-  margin-right: 0.25rem;
 `;
 
 const Message = styled.li`

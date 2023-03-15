@@ -41,7 +41,7 @@ const Modal = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.929);
+  background-color: rgba(0, 0, 0, 0.94);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,7 +51,7 @@ const Form = styled.form`
   background-color: #333333;
   color: #ffffff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 4px;
   display: flex;
   flex-direction: column;
   gap: 10px;

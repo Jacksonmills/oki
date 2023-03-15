@@ -16,17 +16,22 @@ type MessageObject = {
   hexcode?: string;
 };
 
+type UserHistoryObject = {
+  username: string;
+  hexcode: string;
+  status: 'online' | 'offline';
+};
+
 const App = () => {
   const [messages, setMessages] = useState<MessageObject[]>([]);
   const [showModal, setShowModal] = useState(true);
+  const [showUserModal, setShowUserModal] = useState(false);
   const [userCount, setUserCount] = useState(0);
+  const [userHistory, setUserHistory] = useState<UserHistoryObject[]>([]);
 
   useEffect(() => {
     const addMessage = (message: MessageObject) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        message,
-      ]);
+      setMessages((prevMessages) => [...prevMessages, message]);
     };
 
     const handleConnectionEvent = (data: { type: ServerMessageTypeUnion; message: string, username: string, hexcode: string; }) => {
@@ -40,30 +45,24 @@ const App = () => {
       socket.emit('get-live-users-count');
     };
 
-    const handleUserMessageEvent = (message: MessageObject) => {
-      addMessage(message);
-    };
-
-    const handleLiveUsersCount = (count: number) => {
-      setUserCount(count);
-    };
-
-    // get initial count on first connection
     socket.emit('get-live-users-count');
 
+    socket.on('user-history', setUserHistory);
     socket.on('user-connected', (data) => handleConnectionEvent({ ...data, type: "connected" }));
     socket.on('user-disconnected', (data) => handleConnectionEvent({ ...data, type: "disconnected" }));
-    socket.on('message', handleUserMessageEvent);
-    socket.on('live-users-count', handleLiveUsersCount);
+    socket.on('message', addMessage);
+    socket.on('live-users-count', setUserCount);
 
     // Cleanup function to remove event listeners when the component is unmounted
     return () => {
+      socket.off('user-history', setUserHistory);
       socket.off('user-connected');
       socket.off('user-disconnected');
-      socket.off('message', handleUserMessageEvent);
-      socket.off('live-users-count', handleLiveUsersCount);
+      socket.off('message', addMessage);
+      socket.off('live-users-count', setUserCount);
     };
   }, []);
+
 
   const handleModalSubmit = (username: string, hexcode: string) => {
     socket.emit('set-username', { username, hexcode });
@@ -73,7 +72,12 @@ const App = () => {
   return (
     <Wrapper>
       {showModal && (<UsernameModal onSubmit={handleModalSubmit} />)}
-      <LiveUsers count={userCount} />
+      <LiveUsers
+        count={userCount}
+        userHistory={userHistory}
+        showUserModal={showUserModal}
+        onToggleModal={() => setShowUserModal(!showUserModal)}
+      />
       <MessageList messages={messages} />
       <MessageInput />
     </Wrapper>
