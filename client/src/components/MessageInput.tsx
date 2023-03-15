@@ -19,6 +19,7 @@ const MessageInput: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (input === '') return;
     socket.emit('message', input);
     setInput('');
   };
@@ -29,44 +30,78 @@ const MessageInput: React.FC = () => {
   };
 
   return (
-    <Wrapper onSubmit={handleSubmit}>
-      <EmojiButton type="button" onClick={handleEmojiClick}>
-        {nextEmoji}
-      </EmojiButton>
-      <MessageTextInput
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
-      <SendButton type="submit">Send</SendButton>
+    <Wrapper>
+      <Form onSubmit={handleSubmit}>
+        <EmojiButton type="button" onClick={handleEmojiClick}>
+          {nextEmoji}
+        </EmojiButton>
+        <MessageInputWrapper>
+          <MessageTextInput
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <SendButton type="submit" disabled={input === ""}>Send</SendButton>
+        </MessageInputWrapper>
+      </Form>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.form`
+const Wrapper = styled.div`
+  width: 100%;
+`;
+
+const Form = styled.form`
   display: flex;
-  width: 100vw;
+  flex-basis: 100%;
+  padding: 0.5rem;
 `;
 
 const EmojiButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  padding: 1rem;
   margin-right: 6px;
+  aspect-ratio: 1 / 1;
 `;
 
 const MessageTextInput = styled.input`
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  padding-left: 1.2em;
+  font-size: ${16 / 16}rem;
+
+  &:hover, &:focus, &:focus-visible {
+    border: none;
+    outline: none;
+  }
+`;
+
+const SendButton = styled.button`
+  border-radius: 6px;
+  background-color: #17171c;
+  color: white;
+  transition: all 250ms ease;
+
+  &[disabled] {
+    background-color: #383846;
+    color: grey;
+  }
+`;
+
+const MessageInputWrapper = styled.div`
+  display: flex;
   flex-basis: 100%;
   border: 1px solid transparent;
-  border-right: none;
   border-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  padding: 0.6em 1.2em;
+  padding: 0.5em;
   font-size: 1em;
   transition: border-color 0.25s;
+  background-color: #2b2a33;
 
   &:hover {
     border-color: #646cff;
@@ -77,12 +112,12 @@ const MessageTextInput = styled.input`
   &:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
-`;
-
-const SendButton = styled.button`
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: none;
+  &:hover, &:focus, &:focus-visible {
+    ${MessageTextInput} {
+      border: none;
+      outline: none;
+    }
+  }
 `;
 
 export default MessageInput;
