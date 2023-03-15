@@ -16,7 +16,7 @@ const MessageList = ({ messages }: MessageListProps) => (
         <ConnectedEventMessage key={index}>{message.content}</ConnectedEventMessage>
       ) : (
         <Message key={index}>
-          <Username hexcode={message.hexcode}>{message.username}</Username>
+          <Username hexcode={message.hexcode}>{message.username}</Username>:{' '}
           {message.content}
         </Message>
       );
