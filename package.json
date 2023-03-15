@@ -5,7 +5,7 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "build:server": "tsc",
+    "build:server": "tsc -p tsconfig.json",
     "heroku-postbuild": "npm run build:server && cd client && npm install && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:server": "ts-node server/server.ts",
