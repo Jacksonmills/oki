@@ -22,7 +22,11 @@ io.on('connection', (socket) => {
 
   socket.on('set-username', ({ username, hexcode }) => {
     users.set(socket.id, { username, hexcode });
-    socket.broadcast.emit('user-connected', `${username} has connected`);
+    socket.broadcast.emit('user-connected', {
+      message: `has connected! 👋`,
+      username: username,
+      hexcode: hexcode
+    });
   });
 
   socket.on('message', (message: string) => {

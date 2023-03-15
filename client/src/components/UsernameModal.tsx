@@ -7,7 +7,7 @@ type UsernameModalProps = {
 
 const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
   const [username, setUsername] = useState('');
-  const [hexcode, setHexcode] = useState('#000000');
+  const [hexcode, setHexcode] = useState('#ff0006');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +17,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
   return (
     <Modal>
       <Form onSubmit={handleSubmit}>
-        <h2>Enter your name and pick a color!</h2>
+        <h2>Welcome! Enjoy the fun! 😄</h2>
         <input
           type="text"
           placeholder="Temporary name"
@@ -48,7 +48,8 @@ const Modal = styled.div`
 `;
 
 const Form = styled.form`
-  background-color: #ffffff;
+  background-color: #333333;
+  color: #ffffff;
   padding: 20px;
   border-radius: 5px;
   display: flex;

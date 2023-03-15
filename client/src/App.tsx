@@ -24,8 +24,13 @@ const App = () => {
       ]);
     };
 
-    const handleConnectedEvent = (message: string) => {
-      addMessage({ content: message, isServerMessage: true });
+    const handleConnectedEvent = (data: { message: string, username: string, hexcode: string; }) => {
+      addMessage({
+        content: data.message,
+        isServerMessage: true,
+        username: data.username,
+        hexcode: data.hexcode
+      });
     };
 
     const handleUserMessageEvent = (message: MessageObject) => {

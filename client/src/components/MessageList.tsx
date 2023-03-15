@@ -13,10 +13,12 @@ const MessageList = ({ messages }: MessageListProps) => (
   <Wrapper>
     {messages.map((message, index) => {
       return message.isServerMessage ? (
-        <ConnectedEventMessage key={index}>{message.content}</ConnectedEventMessage>
+        <ConnectedEventMessage key={index}>
+          <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
+        </ConnectedEventMessage>
       ) : (
         <Message key={index}>
-          <Username hexcode={message.hexcode}>{message.username}</Username>:{' '}
+          <Username hexcode={message.hexcode}>{message.username}:</Username>
           {message.content}
         </Message>
       );
@@ -33,7 +35,7 @@ const Wrapper = styled.ul`
 const Username = styled.span<{ hexcode?: string; }>`
   color: ${(props) => props.hexcode ? props.hexcode : "#ffffff"};
   font-weight: bold;
-  margin-right: 8px;
+  margin-right: 0.25rem;
 `;
 
 const Message = styled.li`
