@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
 import { socket } from './utils/socket';
+import styled from 'styled-components';
 
 const App = () => {
   const [messages, setMessages] = useState<string[]>([]);
@@ -23,11 +24,20 @@ const App = () => {
 
 
   return (
-    <div>
+    <Wrapper>
       <MessageList messages={messages} />
       <MessageInput />
-    </div>
+    </Wrapper>
   );
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100vh;
+  overflow: hidden;
+`;
 
 export default App;
