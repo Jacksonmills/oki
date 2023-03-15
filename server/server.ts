@@ -1,6 +1,8 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import path from 'path';
+
 
 const app = express();
 const server = http.createServer(app);
@@ -9,6 +11,12 @@ const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3001;
 
 const generateRandomUsername = () => `User${Math.floor(Math.random() * 10000)}`;
+
+const clientPath = path.join(__dirname, '../client');
+app.use(express.static(clientPath));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientPath, 'index.html'));
+});
 
 io.on('connection', (socket) => {
   console.log('a user connected');
