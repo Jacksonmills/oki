@@ -5,8 +5,10 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node dist/server/server.js",
+    "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.json",
-    "heroku-postbuild": "npm run build:server && cd client && npm install && npm run build",
+    "build:client": "cd client && npm run build",
+    "heroku-postbuild": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:server": "ts-node server/server.ts",
     "dev": "concurrently \"npm run dev:server\" \"cd client && npm run dev\""
