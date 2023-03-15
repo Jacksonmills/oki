@@ -90,6 +90,12 @@ const SendButton = styled.button`
   &[disabled] {
     background-color: #383846;
     color: grey;
+    cursor: not-allowed;
+
+    &:hover, &:focus, &:focus-visible {
+      border-color: transparent;
+      outline: none;
+    }
   }
 `;
 

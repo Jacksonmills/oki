@@ -23,6 +23,7 @@ io.on('connection', (socket) => {
   socket.on('set-username', ({ username, hexcode }) => {
     users.set(socket.id, { username, hexcode });
     socket.broadcast.emit('user-connected', {
+      type: 'connected',
       message: `has connected! 👋`,
       username: username,
       hexcode: hexcode
@@ -45,7 +46,12 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
     const user = users.get(socket.id);
     if (user) {
-      socket.broadcast.emit('user-disconnected', `${user.username} has disconnected`);
+      socket.broadcast.emit('user-disconnected', {
+        type: 'disconnected',
+        message: `has disconnected... 🔴`,
+        username: user.username,
+        hexcode: user.hexcode
+      });
       users.delete(socket.id);
     }
   });

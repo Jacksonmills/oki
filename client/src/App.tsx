@@ -5,9 +5,12 @@ import { socket } from './utils/socket';
 import styled from 'styled-components';
 import UsernameModal from './components/UsernameModal';
 
+export type ServerMessageTypeUnion = 'connected' | 'disconnected';
+
 type MessageObject = {
   content: string;
   isServerMessage: boolean;
+  type: ServerMessageTypeUnion;
   username?: string;
   hexcode?: string;
 };
@@ -24,10 +27,11 @@ const App = () => {
       ]);
     };
 
-    const handleConnectedEvent = (data: { message: string, username: string, hexcode: string; }) => {
+    const handleConnectionEvent = (data: { type: ServerMessageTypeUnion; message: string, username: string, hexcode: string; }) => {
       addMessage({
         content: data.message,
         isServerMessage: true,
+        type: data.type,
         username: data.username,
         hexcode: data.hexcode
       });
@@ -37,12 +41,14 @@ const App = () => {
       addMessage(message);
     };
 
-    socket.on('user-connected', handleConnectedEvent);
+    socket.on('user-connected', (data) => handleConnectionEvent({ ...data, type: "connected" }));
+    socket.on('user-disconnected', (data) => handleConnectionEvent({ ...data, type: "disconnected" }));
     socket.on('message', handleUserMessageEvent);
 
     // Cleanup function to remove event listeners when the component is unmounted
     return () => {
-      socket.off('user-connected', handleConnectedEvent);
+      socket.off('user-connected');
+      socket.off('user-disconnected');
       socket.off('message', handleUserMessageEvent);
     };
   }, []);

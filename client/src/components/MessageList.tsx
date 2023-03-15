@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { ServerMessageTypeUnion } from "../App";
 
 export type MessageListProps = {
   messages: {
     content: string,
     isServerMessage: boolean,
+    type: ServerMessageTypeUnion,
     username?: string,
     hexcode?: string,
   }[];
@@ -56,7 +58,7 @@ const MessageList = ({ messages }: MessageListProps) => {
       <List>
         {messages.map((message, index) => {
           return message.isServerMessage ? (
-            <ServerEventMessage type="connected" key={index}>
+            <ServerEventMessage type={message.type} key={index}>
               <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
             </ServerEventMessage>
           ) : (
@@ -106,9 +108,10 @@ const Message = styled.li`
 `;
 
 const ServerEventMessage = styled(Message) <{ type: "connected" | "disconnected", }>`
+  --border-color: ${props => props.type === "connected" ? "green" : "red"};
   padding: 12px;
   background: #333;
-  border: 1px solid ${props => props.type === "connected" ? "green" : "red"};
+  border: 1px solid var(--border-color);
   border-radius: .25rem;
   margin: 6px 12px;
 `;
