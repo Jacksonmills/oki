@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 
 const generateRandomUsername = () => `User${Math.floor(Math.random() * 10000)}`;
 
-const clientPath = path.join(__dirname, '../client');
+const clientPath = path.join(__dirname, '../client/build');
 app.use(express.static(clientPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(clientPath, 'index.html'));
