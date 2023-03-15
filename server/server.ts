@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3001;
 
 const users = new Map<string, { username: string; hexcode: string; }>();
 
+const emitUserCount = () => {
+  io.emit('live-users-count', users.size);
+};
+
 app.use(express.static(path.join(__dirname, '../../client/build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../client/build/index.html'));
@@ -19,6 +23,10 @@ app.get('*', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+
+  socket.on('get-live-users-count', () => {
+    socket.emit('live-users-count', users.size);
+  });
 
   socket.on('set-username', ({ username, hexcode }) => {
     users.set(socket.id, { username, hexcode });
@@ -28,6 +36,7 @@ io.on('connection', (socket) => {
       username: username,
       hexcode: hexcode
     });
+    socket.emit('live-users-count', users.size);
   });
 
   socket.on('message', (message: string) => {
@@ -54,6 +63,7 @@ io.on('connection', (socket) => {
       });
       users.delete(socket.id);
     }
+    emitUserCount();
   });
 });
 
