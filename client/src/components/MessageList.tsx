@@ -1,14 +1,26 @@
 import styled from "styled-components";
 
-type MessageListProps = {
-  messages: string[];
+export type MessageListProps = {
+  messages: {
+    content: string,
+    isServerMessage: boolean,
+    username?: string,
+    hexcode?: string,
+  }[];
 };
 
 const MessageList = ({ messages }: MessageListProps) => (
   <Wrapper>
-    {messages.map((message, index) => (
-      <Message key={index}>{message}</Message>
-    ))}
+    {messages.map((message, index) => {
+      return message.isServerMessage ? (
+        <ConnectedEventMessage key={index}>{message.content}</ConnectedEventMessage>
+      ) : (
+        <Message key={index}>
+          <Username hexcode={message.hexcode}>{message.username}</Username>
+          {message.content}
+        </Message>
+      );
+    })}
   </Wrapper>
 );
 
@@ -16,6 +28,12 @@ const Wrapper = styled.ul`
   list-style: none;
   padding: 0;
   width: 100vw;
+`;
+
+const Username = styled.span<{ hexcode?: string; }>`
+  color: ${(props) => props.hexcode ? props.hexcode : "#ffffff"};
+  font-weight: bold;
+  margin-right: 8px;
 `;
 
 const Message = styled.li`

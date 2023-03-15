@@ -1,30 +1,55 @@
 import { useEffect, useState } from 'react';
-import MessageList from './components/MessageList';
+import MessageList, { MessageListProps } from './components/MessageList';
 import MessageInput from './components/MessageInput';
 import { socket } from './utils/socket';
 import styled from 'styled-components';
+import UsernameModal from './components/UsernameModal';
+
+type MessageObject = {
+  content: string;
+  isServerMessage: boolean;
+  username?: string;
+  hexcode?: string;
+};
 
 const App = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<MessageObject[]>([]);
+  const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
-    const handleEvent = (message: string) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+    const addMessage = (message: MessageObject) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        message,
+      ]);
     };
 
-    socket.on('user-connected', handleEvent);
-    socket.on('message', handleEvent);
+    const handleConnectedEvent = (message: string) => {
+      addMessage({ content: message, isServerMessage: true });
+    };
+
+    const handleUserMessageEvent = (message: MessageObject) => {
+      addMessage(message);
+    };
+
+    socket.on('user-connected', handleConnectedEvent);
+    socket.on('message', handleUserMessageEvent);
 
     // Cleanup function to remove event listeners when the component is unmounted
     return () => {
-      socket.off('user-connected', handleEvent);
-      socket.off('message', handleEvent);
+      socket.off('user-connected', handleConnectedEvent);
+      socket.off('message', handleUserMessageEvent);
     };
   }, []);
 
+  const handleModalSubmit = (username: string, hexcode: string) => {
+    socket.emit('set-username', { username, hexcode });
+    setShowModal(false);
+  };
 
   return (
     <Wrapper>
+      {showModal && (<UsernameModal onSubmit={handleModalSubmit} />)}
       <MessageList messages={messages} />
       <MessageInput />
     </Wrapper>

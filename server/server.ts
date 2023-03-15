@@ -10,7 +10,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 const PORT = process.env.PORT || 3001;
 
-const generateRandomUsername = () => `User${Math.floor(Math.random() * 10000)}`;
+const users = new Map<string, { username: string; hexcode: string; }>();
 
 app.use(express.static(path.join(__dirname, '../../client/build')));
 app.get('*', (req, res) => {
@@ -19,15 +19,31 @@ app.get('*', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  const username = generateRandomUsername();
-  socket.broadcast.emit('user-connected', `${username} has connected`);
+
+  socket.on('set-username', ({ username, hexcode }) => {
+    users.set(socket.id, { username, hexcode });
+    socket.broadcast.emit('user-connected', `${username} has connected`);
+  });
 
   socket.on('message', (message: string) => {
-    io.emit('message', `${username}: ${message}`);
+    const user = users.get(socket.id);
+    if (user) {
+      io.emit('message', {
+        content: message,
+        isServerMessage: false,
+        username: user.username,
+        hexcode: user.hexcode,
+      });
+    }
   });
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    const user = users.get(socket.id);
+    if (user) {
+      socket.broadcast.emit('user-disconnected', `${user.username} has disconnected`);
+      users.delete(socket.id);
+    }
   });
 });
 
