@@ -55,7 +55,7 @@ const Wrapper = styled.div`
 const Form = styled.form`
   display: flex;
   flex-basis: 100%;
-  padding: 0.5rem;
+  padding: 12px;
 `;
 
 const EmojiButton = styled.button`

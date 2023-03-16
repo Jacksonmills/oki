@@ -119,7 +119,7 @@ const HeaderContent = styled.div`
   align-items: center;
   justify-content: space-between;
   background-color: #2b2a33;
-  padding: 8px;
+  padding: 6px 12px;
 `;
 
 const Logo = styled.h1`
