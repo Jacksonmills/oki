@@ -28,29 +28,33 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
 }) => {
   const [colors, setColors] = useState<string[]>([]);
   const colorInputRef = useRef<HTMLInputElement>(null);
+  const initialRender = useRef(true);
 
   useEffect(() => {
-    const generateUniqueColors = () => {
-      const newColors: string[] = [];
+    if (initialRender.current) {
+      const generateUniqueColors = () => {
+        const newColors: string[] = [];
 
-      while (newColors.length < 3) {
-        const color = getRandomColor();
+        while (newColors.length < 3) {
+          const color = getRandomColor();
 
-        if (
-          !newColors.includes(color) &&
-          !userColors.includes(color)
-        ) {
-          newColors.push(color);
+          if (
+            !newColors.includes(color) &&
+            !userColors.includes(color)
+          ) {
+            newColors.push(color);
+          }
         }
-      }
 
-      return newColors;
-    };
+        return newColors;
+      };
 
-    const uniqueColors = generateUniqueColors();
-    setColors([...uniqueColors, 'picker']);
-    onSelect(uniqueColors[0]);
-  }, [userColors, onSelect]);
+      const uniqueColors = generateUniqueColors();
+      setColors([...uniqueColors, 'picker']);
+      onSelect(uniqueColors[0]);
+      initialRender.current = false;
+    }
+  }, [userColors]);
 
   const handleColorSelect = (color: string) => {
     onSelect(color);
