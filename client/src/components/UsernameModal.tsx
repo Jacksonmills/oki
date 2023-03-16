@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Modal from './Modal';
+import TextInput from './TextInput';
+import ColorSwatchPicker from './ColorSwatchPicker';
 
 type UsernameModalProps = {
   onSubmit: (username: string, hexcode: string) => void,
+  userColors: string[],
 };
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
+const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors }) => {
   const [username, setUsername] = useState('');
   const [hexcode, setHexcode] = useState('#ff0006');
 
@@ -17,44 +21,44 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
   return (
     <Modal>
       <Form onSubmit={handleSubmit}>
-        <h2>Welcome! Enjoy the fun! 😄</h2>
-        <input
-          type="text"
-          placeholder="Temporary name"
+        <Heading>Welcome! Enjoy the fun! 😄</Heading>
+        <TextInput
+          buttonText='Join'
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={setUsername}
+          onClick={handleSubmit}
+          placeholder='Type a username...'
         />
-        <input
-          type="color"
-          value={hexcode}
-          onChange={(e) => setHexcode(e.target.value)}
+        <ColorHeading>Pick a color!</ColorHeading>
+        <ColorSwatchPicker
+          userColors={userColors}
+          onSelect={setHexcode}
+          currentHexcode={hexcode}
         />
-        <button type="submit">Submit</button>
       </Form>
     </Modal>
   );
 };
 
-const Modal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.94);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const Form = styled.form`
   background-color: #333333;
   color: #ffffff;
-  padding: 20px;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
+
+  > * {
+    margin: 0;
+  }
+`;
+
+const Heading = styled.h2`
+  text-align: center;
+`;
+
+const ColorHeading = styled.h3`
+  text-align: center;
 `;
 
 export default UsernameModal;

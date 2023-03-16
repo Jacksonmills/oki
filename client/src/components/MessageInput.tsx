@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../utils/socket';
 import styled from 'styled-components';
+import TextInput from './TextInput';
 
 const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣'];
 
@@ -17,7 +18,7 @@ const MessageInput: React.FC = () => {
     setNextEmoji(getRandomEmoji());
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (input === '') return;
     socket.emit('message', input);
@@ -35,14 +36,13 @@ const MessageInput: React.FC = () => {
         <EmojiButton type="button" onClick={handleEmojiClick}>
           {nextEmoji}
         </EmojiButton>
-        <MessageInputWrapper>
-          <MessageTextInput
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
-          <SendButton type="submit" disabled={input === ""}>Send</SendButton>
-        </MessageInputWrapper>
+        <TextInput
+          buttonText='Send'
+          value={input}
+          onChange={setInput}
+          onClick={handleSubmit}
+          placeholder='Type a message...'
+        />
       </Form>
     </Wrapper>
   );

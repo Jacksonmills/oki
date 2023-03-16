@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
       hexcode: hexcode
     });
 
-    socket.emit('user-history', userHistory);
+    io.emit('user-history', userHistory);
     socket.emit('live-users-count', users.size);
   });
 

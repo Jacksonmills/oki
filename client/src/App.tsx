@@ -69,15 +69,31 @@ const App = () => {
     setShowModal(false);
   };
 
+  const getOnlineUserColors = () => {
+    return userHistory
+      .filter((user) => user.status === 'online')
+      .map((user) => user.hexcode);
+  };
+
   return (
     <Wrapper>
-      {showModal && (<UsernameModal onSubmit={handleModalSubmit} />)}
-      <LiveUsers
-        count={userCount}
-        userHistory={userHistory}
-        showUserModal={showUserModal}
-        onToggleModal={() => setShowUserModal(!showUserModal)}
-      />
+      <Header>
+        <HeaderContent>
+          <Logo>CommuniYak</Logo>
+          <LiveUsers
+            count={userCount}
+            userHistory={userHistory}
+            showUserModal={showUserModal}
+            onToggleModal={() => setShowUserModal(!showUserModal)}
+          />
+        </HeaderContent>
+      </Header>
+      {showModal && (
+        <UsernameModal
+          onSubmit={handleModalSubmit}
+          userColors={getOnlineUserColors()}
+        />
+      )}
       <MessageList messages={messages} />
       <MessageInput />
     </Wrapper>
@@ -91,6 +107,24 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   height: 100vh;
   overflow: hidden;
+`;
+
+const Header = styled.header`
+  width: 100%;
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2b2a33;
+  padding: 8px;
+`;
+
+const Logo = styled.h1`
+  font-size: 18px;
+  color: #fff;
 `;
 
 export default App;

@@ -113,7 +113,7 @@ const ServerEventMessage = styled(Message) <{ type: "connected" | "disconnected"
 
 const ScrollToBottomButton = styled.button`
   position: absolute;
-  top: 10px;
+  top: 82px;
   left: 50%;
   transform: translateX(-50%);
   padding: 5px 10px 6px;
