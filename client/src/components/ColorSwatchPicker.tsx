@@ -54,7 +54,7 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
       onSelect(uniqueColors[0]);
       initialRender.current = false;
     }
-  }, [userColors]);
+  }, [userColors, onSelect]);
 
   const handleColorSelect = (color: string) => {
     onSelect(color);
