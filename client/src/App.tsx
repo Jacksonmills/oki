@@ -88,29 +88,37 @@ const App = () => {
           />
         </HeaderContent>
       </Header>
+      <StyledMessageList messages={messages} />
+      <StyledMessageInput />
+
       {showModal && (
         <UsernameModal
           onSubmit={handleModalSubmit}
           userColors={getOnlineUserColors()}
         />
       )}
-      <MessageList messages={messages} />
-      <MessageInput />
     </Wrapper>
   );
 };
 
+const Header = styled.header`
+  width: 100%;
+`;
+const StyledMessageList = styled(MessageList)``;
+const StyledMessageInput = styled(MessageInput)``;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
   height: 100vh;
-  overflow: hidden;
-`;
 
-const Header = styled.header`
-  width: 100%;
+  ${Header}, ${StyledMessageInput} {
+    flex-shrink: 0;
+  }
+  ${StyledMessageList} {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
 `;
 
 const HeaderContent = styled.div`

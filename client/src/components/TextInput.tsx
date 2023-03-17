@@ -19,6 +19,7 @@ const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onCl
     <Wrapper>
       <Input
         type="text"
+        spellCheck="true"
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
