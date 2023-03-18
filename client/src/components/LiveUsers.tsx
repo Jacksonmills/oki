@@ -1,7 +1,8 @@
 import { MouseEvent } from 'react';
 import { User } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
-import { UserObj, UserModal } from './UserModal';
+import { UserModal } from './UserModal';
+import { UserObj } from '../App';
 
 type LiveUsersProps = {
   count: number;
