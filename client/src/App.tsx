@@ -17,38 +17,43 @@ type MessageObject = {
   hexcode?: string;
 };
 
-type UserHistoryObject = {
+export interface UserObj {
   username: string;
   hexcode: string;
   status: 'online' | 'offline';
   lastSeen: Date;
-};
+  disconnectTime?: Date;
+}
+
+export interface UserHistory extends UserObj {
+  id: string;
+}
 
 const App = () => {
   const [messages, setMessages] = useState<MessageObject[]>([]);
   const [showModal, setShowModal] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
   const [userCount, setUserCount] = useState(0);
-  const [userHistory, setUserHistory] = useState<UserHistoryObject[]>([]);
+  const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
 
   useEffect(() => {
     const addMessage = (message: MessageObject) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     };
 
-    const handleConnectionEvent = (data: { type: ServerMessageTypeUnion; message: string, username: string, hexcode: string; }) => {
+    const handleUserConnectionEvent = (eventType: 'connected' | 'disconnected', data: { message: string, username: string, hexcode: string; }) => {
       const now = new Date();
       addMessage({
         content: data.message,
         isServerMessage: true,
-        type: data.type,
+        type: eventType,
         username: data.username,
         hexcode: data.hexcode
       });
       setUserHistory((prevUserHistory) => {
         return prevUserHistory.map((user) => {
           if (user.username === data.username) {
-            return { ...user, status: data.type === 'connected' ? 'online' : 'offline', lastSeen: now };
+            return { ...user, status: eventType === 'connected' ? 'online' : 'offline', lastSeen: now };
           }
           return user;
         });
@@ -56,26 +61,37 @@ const App = () => {
       socket.emit('get-live-users-count');
     };
 
-    socket.emit('get-live-users-count');
+    const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
+      handleUserConnectionEvent('connected', data);
+    };
 
-    socket.on('user-history', (userHistory: UserHistoryObject[]) => {
+    const handleDisconnection = (data: { message: string, username: string, hexcode: string; }) => {
+      handleUserConnectionEvent('disconnected', data);
+    };
+
+    const handleUserHistory = (userHistory: UserHistory[]) => {
       const now = new Date();
       const updatedUserHistory = userHistory.map(user => ({
         ...user,
         lastSeen: user.lastSeen ? new Date(user.lastSeen) : now,
+        disconnectTime: user.disconnectTime ? new Date(user.disconnectTime) : undefined
       }));
       setUserHistory(updatedUserHistory);
-    });
-    socket.on('user-connected', (data) => handleConnectionEvent({ ...data, type: "connected" }));
-    socket.on('user-disconnected', (data) => handleConnectionEvent({ ...data, type: "disconnected" }));
+    };
+
+    socket.emit('get-live-users-count');
+
+    socket.on('user-history', handleUserHistory);
+    socket.on('user-connected', (data) => handleConnection({ ...data, type: "connected" }));
+    socket.on('user-disconnected', (data) => handleDisconnection({ ...data, type: "disconnected" }));
     socket.on('message', addMessage);
     socket.on('live-users-count', setUserCount);
 
     // Cleanup function to remove event listeners when the component is unmounted
     return () => {
-      socket.off('user-history', setUserHistory);
-      socket.off('user-connected');
-      socket.off('user-disconnected');
+      socket.off('user-history', handleUserHistory);
+      socket.off('user-connected', handleConnection);
+      socket.off('user-disconnected', handleDisconnection);
       socket.off('message', addMessage);
       socket.off('live-users-count', setUserCount);
     };

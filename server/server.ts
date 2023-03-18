@@ -3,7 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { initializeSocketController } from './socketController';
-import { User, UserHistory } from '../shared/types';
+import { UserObj, UserHistory } from '../shared/types';
 
 const app = express();
 const server = http.createServer(app);
@@ -15,7 +15,7 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3001;
 
-const users = new Map<string, User>();
+const users = new Map<string, UserObj>();
 const userHistory: UserHistory[] = [];
 
 app.use(express.static(path.join(__dirname, '../../client/build')));

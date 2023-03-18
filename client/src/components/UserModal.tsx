@@ -3,13 +3,8 @@ import styled from 'styled-components';
 import Username from './Username';
 import Modal from './Modal';
 import { X } from 'react-feather';
-
-export type UserObj = {
-  username: string;
-  hexcode: string;
-  status: 'online' | 'offline';
-  lastSeen: Date;
-};
+import Dropdown from './Dropdown';
+import { UserObj } from '../App';
 
 type UserModalProps = {
   users: UserObj[];
@@ -21,16 +16,20 @@ export const UserModal = ({ users, onClose }: UserModalProps) => {
 
   useEffect(() => {
     const filterOfflineUsers = () => {
+      console.log('filterOfflineUsers executed');
       const now = new Date();
-      let oneHour = 60 * 60 * 1000;
+      // const oneHour = 60 * 60 * 1000;
+      const oneHour = 60 * 1000; // for testing
 
       const updatedUsers: UserObj[] = users.reduce((acc: UserObj[], user: UserObj) => {
-        const timeDifference = now.getTime() - user.lastSeen.getTime();
-        if (
-          user.status !== 'offline' ||
-          (user.lastSeen && timeDifference < oneHour)
-        ) {
+        if (user.status === 'online') {
           acc.push(user);
+        } else {
+          // Check if it's been an hour since the specific user's disconnect event
+          const timeDifference = now.getTime() - (user.disconnectTime?.getTime() || 0);
+          if (user.disconnectTime && timeDifference < oneHour) {
+            acc.push(user);
+          }
         }
         return acc;
       }, []);
@@ -39,7 +38,7 @@ export const UserModal = ({ users, onClose }: UserModalProps) => {
     };
 
     filterOfflineUsers();
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       filterOfflineUsers();
     }, 60 * 1000);
 
@@ -50,6 +49,7 @@ export const UserModal = ({ users, onClose }: UserModalProps) => {
 
   const onlineUsers = filteredUsers.filter(user => user.status === 'online');
   const offlineUsers = filteredUsers.filter(user => user.status === 'offline');
+  console.log(offlineUsers);
 
   return (
     <Modal onClose={onClose}>
@@ -59,26 +59,32 @@ export const UserModal = ({ users, onClose }: UserModalProps) => {
           <X />
         </CloseButton>
       </Title>
-      <UserList>
-        {onlineUsers.map((user, index) => (
-          <User key={index} status={user.status}>
-            <Username hexcode={user.hexcode}>{user.username}</Username>
-            <Status>
-              <Dot status={user.status} />{user.status}
-            </Status>
-          </User>
-        ))}
-      </UserList>
-      <UserList>
-        {offlineUsers.map((user, index) => (
-          <User key={index} status={user.status}>
-            <Username hexcode={user.hexcode}>{user.username}</Username>
-            <Status>
-              <Dot status={user.status} />{user.status}
-            </Status>
-          </User>
-        ))}
-      </UserList>
+      <Dropdown title={`Online Users (${onlineUsers.length})`} defaultOpen>
+        <UserList>
+          {onlineUsers.map((user, index) => (
+            <User key={index} status={user.status}>
+              <Username hexcode={user.hexcode}>{user.username}</Username>
+              <Status>
+                <Dot status={user.status} />{user.status}
+              </Status>
+            </User>
+          ))}
+        </UserList>
+      </Dropdown>
+      {offlineUsers.length > 0 && (
+        <Dropdown title={`Offline Users (${offlineUsers.length})`} defaultOpen>
+          <UserList>
+            {offlineUsers.map((user, index) => (
+              <User key={index} status={user.status}>
+                <Username hexcode={user.hexcode}>{user.username}</Username>
+                <Status>
+                  <Dot status={user.status} />{user.status}
+                </Status>
+              </User>
+            ))}
+          </UserList>
+        </Dropdown>
+      )}
     </Modal>
   );
 };

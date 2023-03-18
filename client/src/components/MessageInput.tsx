@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import TextInput from './TextInput';
 
 const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣'];
+export const MESSAGE_INPUT_HEIGHT = '86px';
 
 const getRandomEmoji = () => {
   const randomIndex = Math.floor(Math.random() * emojis.length);
@@ -50,6 +51,9 @@ const MessageInput: React.FC = ({ className }: { className?: string; }) => {
 
 const Wrapper = styled.div`
   width: 100%;
+  position: fixed;
+  bottom: 0;
+  background-color: #242424;
 `;
 
 const Form = styled.form`

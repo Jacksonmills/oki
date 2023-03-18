@@ -15,6 +15,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors }) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (username === '') return;
     onSubmit(username, hexcode);
   };
 

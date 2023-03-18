@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { ServerMessageTypeUnion } from "../App";
 import Username from "./Username";
+import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
 
 export type MessageListProps = {
   messages: {
@@ -86,11 +87,13 @@ const Wrapper = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
+  margin-bottom: ${MESSAGE_INPUT_HEIGHT};
 `;
 
 const List = styled.ul`
   list-style: none;
   padding: 0;
+  margin: 0;
   width: 100vw;
   display: flex;
   flex-direction: column;

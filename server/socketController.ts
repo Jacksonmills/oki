@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
-import { User, UserHistory } from "../shared/types";
+import { UserObj, UserHistory } from "../shared/types";
 
-export function initializeSocketController(io: Server, users: Map<string, User>, userHistory: UserHistory[]) {
+export function initializeSocketController(io: Server, users: Map<string, UserObj>, userHistory: UserHistory[]) {
   const emitUserCount = () => {
     io.emit('live-users-count', users.size);
   };
@@ -13,8 +13,8 @@ export function initializeSocketController(io: Server, users: Map<string, User>,
     });
 
     socket.on('set-username', ({ username, hexcode }) => {
-      users.set(socket.id, { username, hexcode, status: 'online' });
-      userHistory.push({ id: socket.id, username, hexcode, status: 'online' });
+      users.set(socket.id, { username, hexcode, status: 'online', lastSeen: new Date() });
+      userHistory.push({ id: socket.id, username, hexcode, status: 'online', lastSeen: new Date() });
 
       io.emit('user-connected', {
         type: 'connected',
@@ -54,6 +54,7 @@ export function initializeSocketController(io: Server, users: Map<string, User>,
         const userIndex = userHistory.findIndex(u => u.id === socket.id);
         if (userIndex !== -1) {
           userHistory[userIndex].status = 'offline';
+          userHistory[userIndex].disconnectTime = new Date();
         }
 
         socket.broadcast.emit('user-disconnected', {

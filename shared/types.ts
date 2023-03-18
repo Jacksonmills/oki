@@ -1,12 +1,11 @@
-export interface User {
+export interface UserObj {
   username: string;
   hexcode: string;
   status: 'online' | 'offline';
+  lastSeen: Date;
+  disconnectTime?: Date;
 }
 
-export interface UserHistory {
+export interface UserHistory extends UserObj {
   id: string;
-  username: string;
-  hexcode: string;
-  status: 'online' | 'offline';
 }
