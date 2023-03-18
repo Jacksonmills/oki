@@ -5,6 +5,7 @@ import { socket } from './utils/socket';
 import styled from 'styled-components';
 import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
+import Logo from './components/Logo';
 
 export type ServerMessageTypeUnion = 'connected' | 'disconnected';
 
@@ -20,6 +21,7 @@ type UserHistoryObject = {
   username: string;
   hexcode: string;
   status: 'online' | 'offline';
+  lastSeen: Date;
 };
 
 const App = () => {
@@ -35,6 +37,7 @@ const App = () => {
     };
 
     const handleConnectionEvent = (data: { type: ServerMessageTypeUnion; message: string, username: string, hexcode: string; }) => {
+      const now = new Date();
       addMessage({
         content: data.message,
         isServerMessage: true,
@@ -42,12 +45,27 @@ const App = () => {
         username: data.username,
         hexcode: data.hexcode
       });
+      setUserHistory((prevUserHistory) => {
+        return prevUserHistory.map((user) => {
+          if (user.username === data.username) {
+            return { ...user, status: data.type === 'connected' ? 'online' : 'offline', lastSeen: now };
+          }
+          return user;
+        });
+      });
       socket.emit('get-live-users-count');
     };
 
     socket.emit('get-live-users-count');
 
-    socket.on('user-history', setUserHistory);
+    socket.on('user-history', (userHistory: UserHistoryObject[]) => {
+      const now = new Date();
+      const updatedUserHistory = userHistory.map(user => ({
+        ...user,
+        lastSeen: user.lastSeen ? new Date(user.lastSeen) : now,
+      }));
+      setUserHistory(updatedUserHistory);
+    });
     socket.on('user-connected', (data) => handleConnectionEvent({ ...data, type: "connected" }));
     socket.on('user-disconnected', (data) => handleConnectionEvent({ ...data, type: "disconnected" }));
     socket.on('message', addMessage);
@@ -79,7 +97,10 @@ const App = () => {
     <Wrapper>
       <Header>
         <HeaderContent>
-          <Logo>CommuniYak</Logo>
+          <LogoWrapper>
+            <StyledLogo />
+            <LogoText>Choji</LogoText>
+          </LogoWrapper>
           <LiveUsers
             count={userCount}
             userHistory={userHistory}
@@ -101,11 +122,34 @@ const App = () => {
   );
 };
 
+const StyledLogo = styled(Logo)`
+  width: 1em;
+  height: 1em;
+`;
+const LogoText = styled.h1`
+  display: none;
+  font-size: 18px;
+  color: #fff;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    display: inline-flex;
+  }
+`;
+const LogoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+`;
+
 const Header = styled.header`
   width: 100%;
 `;
+
 const StyledMessageList = styled(MessageList)``;
-const StyledMessageInput = styled(MessageInput)``;
+const StyledMessageInput = styled(MessageInput)`
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -127,12 +171,7 @@ const HeaderContent = styled.div`
   align-items: center;
   justify-content: space-between;
   background-color: #2b2a33;
-  padding: 6px 12px;
-`;
-
-const Logo = styled.h1`
-  font-size: 18px;
-  color: #fff;
+  padding: 8px 12px;
 `;
 
 export default App;

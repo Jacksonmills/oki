@@ -11,9 +11,10 @@ export type MessageListProps = {
     username?: string,
     hexcode?: string,
   }[];
+  className?: string;
 };
 
-const MessageList = ({ messages }: MessageListProps) => {
+const MessageList = ({ messages, className }: MessageListProps) => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,7 @@ const MessageList = ({ messages }: MessageListProps) => {
   }, [messages]);
 
   return (
-    <Wrapper ref={wrapperRef}>
+    <Wrapper ref={wrapperRef} className={className}>
       <List>
         {messages.map((message, index) => {
           return message.isServerMessage ? (

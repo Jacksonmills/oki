@@ -10,7 +10,7 @@ const getRandomEmoji = () => {
   return emojis[randomIndex];
 };
 
-const MessageInput: React.FC = () => {
+const MessageInput: React.FC = ({ className }: { className?: string; }) => {
   const [input, setInput] = useState('');
   const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
 
@@ -31,7 +31,7 @@ const MessageInput: React.FC = () => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <Form onSubmit={handleSubmit}>
         <EmojiButton type="button" onClick={handleEmojiClick}>
           {nextEmoji}
@@ -65,65 +65,6 @@ const EmojiButton = styled.button`
   border-radius: 50%;
   margin-right: 6px;
   aspect-ratio: 1 / 1;
-`;
-
-const MessageTextInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: transparent;
-  padding-left: 1.2em;
-  font-size: ${16 / 16}rem;
-
-  &:hover, &:focus, &:focus-visible {
-    border: none;
-    outline: none;
-  }
-`;
-
-const SendButton = styled.button`
-  border-radius: 6px;
-  background-color: #17171c;
-  color: white;
-  transition: all 250ms ease;
-
-  &[disabled] {
-    background-color: #383846;
-    color: grey;
-    cursor: not-allowed;
-
-    &:hover, &:focus, &:focus-visible {
-      border-color: transparent;
-      outline: none;
-    }
-  }
-`;
-
-const MessageInputWrapper = styled.div`
-  display: flex;
-  flex-basis: 100%;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 0.5em;
-  font-size: 1em;
-  transition: border-color 0.25s;
-  background-color: #2b2a33;
-
-  &:hover {
-    border-color: #646cff;
-  }
-  &:focus {
-    outline: none;
-  }
-  &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
-  }
-  &:hover, &:focus, &:focus-visible {
-    ${MessageTextInput} {
-      border: none;
-      outline: none;
-    }
-  }
 `;
 
 export default MessageInput;

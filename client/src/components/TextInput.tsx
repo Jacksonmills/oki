@@ -33,7 +33,7 @@ const Input = styled.input`
   width: 100%;
   border: none;
   background-color: transparent;
-  padding-left: 1.2em;
+  padding: 0 1.2em;
   font-size: ${16 / 16}rem;
 
   &:hover, &:focus, &:focus-visible {
@@ -44,6 +44,8 @@ const Input = styled.input`
 
 const Button = styled.button`
   border-radius: 6px;
+  border-top-left-radius: 1px;
+  border-bottom-left-radius: 1px;
   background-color: #17171c;
   color: white;
   transition: all 250ms ease;
