@@ -11,32 +11,6 @@ Example Use Case
 
 Imagine attending a fighting game tournament where each stage has its own unique Oki chatroom. As audience members, you can chat and share your excitement about the ongoing matches, all while maintaining your anonymity.
 
-## Project Structure
-.
-├── client
-│   └── src
-│       ├── App.tsx
-│       ├── components
-│       │   ├── ColorSwatchPicker.tsx
-│       │   ├── Dropdown.tsx
-│       │   ├── LiveUsers.tsx
-│       │   ├── Logo.tsx
-│       │   ├── MessageInput.tsx
-│       │   ├── MessageList.tsx
-│       │   ├── Modal.tsx
-│       │   ├── TextInput.tsx
-│       │   ├── UserModal.tsx
-│       │   ├── Username.tsx
-│       │   └── UsernameModal.tsx
-│       ├── main.tsx
-│       └── utils
-│           └── socket.ts
-├── server
-│   ├── server.ts
-│   └── socketController.ts
-└── shared
-    └── types.ts
-
 ## Getting Started
 
 To get started with Oki, clone the repository, install the dependencies, and follow the setup instructions in the README.md. Enjoy using Oki and happy chatting!
