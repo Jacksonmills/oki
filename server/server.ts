@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' ? 'https://chat-app-gpt4.herokuapp.com/' : '*',
+    origin: process.env.NODE_ENV === 'production' ? 'https://oki.herokuapp.com/' : '*',
   },
 });
 
