@@ -115,7 +115,7 @@ const App = () => {
         <HeaderContent>
           <LogoWrapper>
             <StyledLogo />
-            <LogoText>Choji</LogoText>
+            <LogoText>Oki</LogoText>
           </LogoWrapper>
           <LiveUsers
             count={userCount}
