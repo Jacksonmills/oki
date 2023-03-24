@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "server/**/*.ts"
+    "server/**/*.ts",
+    "shared/**/*.txt",
   ]
 }
