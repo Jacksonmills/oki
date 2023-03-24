@@ -11,6 +11,6 @@
   },
   "include": [
     "server/**/*.ts",
-    "shared/**/*.txt",
+    "server/**/*.txt",
   ]
 }
