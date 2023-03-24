@@ -15,6 +15,13 @@ const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onCl
     onChange(e.target.value);
   };
 
+  // lets write a react hook that would validate the input and check it for bad words or other type of moderation that we want to do as a twitch like chat app for live streams
+  // const [badWords, setBadWords] = useState<string[]>([]);
+
+  // draw with me style mini inline chat game
+  // const [drawWithMe, setDrawWithMe] = useState<string[]>([]);
+
+
   return (
     <Wrapper>
       <Input
