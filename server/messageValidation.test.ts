@@ -1,13 +1,6 @@
-import { blacklist } from './blacklist';
+import { blockList } from './filterList';
 import xss from "xss";
-
-const validateMessage = (message: string) => {
-  const lowerCaseMessage = message.toLowerCase();
-
-  const isBlacklisted = blacklist.some(item => lowerCaseMessage.includes(item.toLowerCase()));
-
-  return !isBlacklisted;
-};
+import validateMessage from './validateText';
 
 describe('validateMessage', () => {
   it('should return true if message is valid', () => {
@@ -16,8 +9,8 @@ describe('validateMessage', () => {
   });
 
   it('should return false for a message containing a blacklisted word', () => {
-    const blacklistedWord = blacklist[0];
-    const message = `This message contains a blacklisted word: ${blacklistedWord}`;
+    const blockedWord = blockList[0];
+    const message = `This message contains a blocked word: ${blockedWord}`;
     expect(validateMessage(message)).toBe(false);
   });
 });

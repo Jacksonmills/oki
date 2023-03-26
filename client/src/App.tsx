@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
 import Logo from './components/Logo';
+import { v4 as uuid } from 'uuid';
+import { io } from 'socket.io-client';
 
 export type ServerMessageTypeUnion = 'connected' | 'disconnected';
 
@@ -35,13 +37,30 @@ const App = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [userCount, setUserCount] = useState(0);
   const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const socketId = localStorage.getItem('socketId') || uuid();
+  localStorage.setItem('socketId', socketId);
+
+  const socket = io('http://localhost:3001', {
+    extraHeaders: {
+      socketId,
+    },
+  });
 
   useEffect(() => {
     const addMessage = (message: MessageObject) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     };
 
-    const handleUserConnectionEvent = (eventType: 'connected' | 'disconnected', data: { message: string, username: string, hexcode: string; }) => {
+    const doesSavedSocketIdMatchUser = (savedSocketId: string, userHistory: UserHistory[]) => {
+      return userHistory.some(user => user.id === savedSocketId);
+    };
+
+    const handleUserConnectionEvent = (
+      eventType: 'connected' | 'disconnected',
+      data: { message: string, username: string, hexcode: string; }
+    ) => {
       const now = new Date();
       addMessage({
         content: data.message,
@@ -63,6 +82,16 @@ const App = () => {
 
     const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
       handleUserConnectionEvent('connected', data);
+    };
+
+    const handleReconnection = (data: { message: string, username: string, hexcode: string; }) => {
+      handleUserConnectionEvent('connected', data);
+      // Send a 'set-username' event to confirm the user's username and hexcode
+      const savedSocketId = localStorage.getItem('socketId');
+      if (savedSocketId && doesSavedSocketIdMatchUser(savedSocketId, userHistory)) {
+        const user = userHistory.find(user => user.id === savedSocketId);
+        socket.emit('set-username', { username: user?.username, hexcode: user?.hexcode });
+      }
     };
 
     const handleDisconnection = (data: { message: string, username: string, hexcode: string; }) => {
@@ -87,10 +116,24 @@ const App = () => {
     socket.on('message', addMessage);
     socket.on('live-users-count', setUserCount);
 
+    socket.on('user-reconnected', (attemptNumber) => {
+      // If a reconnect event occurs, emit a 'get-live-users-count' event to update the user count
+      console.log(`Socket reconnected after ${attemptNumber} attempts`);
+      socket.emit('get-live-users-count');
+
+      // If the saved socketId matches a user in the userHistory array, emit a 'set-username' event to confirm the user's username and hexcode
+      const savedSocketId = localStorage.getItem('socketId');
+      const matchedUser = userHistory.find(user => user.id === savedSocketId);
+      if (matchedUser) {
+        socket.emit('set-username', { username: matchedUser.username, hexcode: matchedUser.hexcode });
+      }
+    });
+
     // Cleanup function to remove event listeners when the component is unmounted
     return () => {
       socket.off('user-history', handleUserHistory);
       socket.off('user-connected', handleConnection);
+      socket.off('user-reconnected', handleReconnection);
       socket.off('user-disconnected', handleDisconnection);
       socket.off('message', addMessage);
       socket.off('live-users-count', setUserCount);
@@ -99,8 +142,20 @@ const App = () => {
 
 
   const handleModalSubmit = (username: string, hexcode: string) => {
+    // user request
     socket.emit('set-username', { username, hexcode });
-    setShowModal(false);
+
+    // server response
+    socket.once('username-set', () => {
+      setShowModal(false);
+    });
+
+    socket.once('username-taken', () => {
+      setErrorMessage('This username is already taken. Please choose a different username.');
+    });
+    socket.once('username-invalid', () => {
+      setErrorMessage('Invalid username. Please choose a different username.');
+    });
   };
 
   const getOnlineUserColors = () => {
@@ -132,6 +187,7 @@ const App = () => {
         <UsernameModal
           onSubmit={handleModalSubmit}
           userColors={getOnlineUserColors()}
+          errorMessage={errorMessage}
         />
       )}
     </Wrapper>

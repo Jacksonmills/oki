@@ -1,49 +1,83 @@
 import { Server } from "socket.io";
 import { UserObj, UserHistory } from "../shared/types";
-import { validate } from "uuid";
-import { blacklist } from "./blacklist";
 import xss from "xss";
+import validateText from "./validateText";
+import { Socket } from "socket.io";
 
 export function createSocketController(io: Server, users: Map<string, UserObj>, userHistory: UserHistory[]) {
   const emitUserCount = () => {
     io.emit('live-users-count', users.size);
   };
 
-  const validateMessage = (message: string) => {
-    const lowerCaseMessage = message.toLowerCase();
-
-    const isBlacklisted = blacklist.some(item => lowerCaseMessage.includes(item.toLowerCase()));
-
-    return !isBlacklisted;
+  const isUsernameTaken = (username: string) => {
+    return userHistory.some(user => user.username.toLowerCase() === username.toLowerCase());
   };
 
-  io.on('connection', (socket) => {
+  const doesSavedSocketIdMatchUser = (savedSocketId: string, username: string): boolean => {
+    const user = userHistory.find(user => user.id === savedSocketId);
+    return !!user && user.username.toLowerCase() === username.toLowerCase();
+  };
+
+  io.on('connection', (socket: Socket) => {
+    let savedSocketId = socket.handshake.headers.socketid as string;
+
+    if (savedSocketId && doesSavedSocketIdMatchUser(savedSocketId, '')) {
+      const user = userHistory.find(user => user.id === savedSocketId);
+      if (user) {
+        savedSocketId = user.id;
+        user.status = 'online';
+        user.lastSeen = new Date();
+        users.set(savedSocketId, user);
+        socket.emit('username-set');
+        io.emit('user-history', userHistory);
+        io.emit('user-connected', {
+          type: 'reconnected',
+          message: `has reconnected! 👋`,
+          username: user.username,
+          hexcode: user.hexcode
+        });
+
+        console.log(`[${new Date().toISOString()}] a user reconnected (savedSocketId: ${savedSocketId})`);
+        return;
+      }
+    }
 
     socket.on('get-live-users-count', () => {
       socket.emit('live-users-count', users.size);
     });
 
-    // change username of a user that already is connected
-    // socket.on('change-username', ({ username, hexcode }) => {
-    //   // write this with comments please
-    //   const user = users.get(socket.id); // get the user from the users map
-    //   if (user) { // if the user exists
-    //     const userIndex = userHistory.findIndex(u => u.id === socket.id); // find the user in the userHistory array
-    //     if (userIndex !== -1) { // if the user exists in the userHistory array
-    //       userHistory[userIndex].username = username; // change the username in the userHistory array
-    //       userHistory[userIndex].hexcode = hexcode; // change the hexcode in the userHistory array
-    //     }
-    //     user.username = username; // change the username in the users map
-    //     user.hexcode = hexcode; // change the hexcode in the users map
-    //     io.emit('user-history', userHistory); // emit the userHistory array to all users
-    //     io.emit('user-changed-username', { // emit the new username and hexcode to all users
-    //       username: username,
-    //       hexcode: hexcode
-    //     });
-    //   }
-    // });
-
     socket.on('set-username', ({ username, hexcode }) => {
+      if (!validateText(username)) {
+        socket.emit('username-invalid');
+        return;
+      };
+
+      if (isUsernameTaken(username)) {
+        socket.emit('username-taken');
+        return;
+      };
+
+      if (doesSavedSocketIdMatchUser(savedSocketId, username)) {
+        console.log("hello");
+        const user = userHistory.find(user => user.id === savedSocketId);
+        if (user) {
+          user.status = 'online';
+          user.lastSeen = new Date();
+          users.set(savedSocketId, user);
+          socket.emit('username-set');
+          io.emit('user-history', userHistory);
+          io.emit('user-connected', {
+            type: 'reconnected',
+            message: `has reconnected! 👋`,
+            username: user.username,
+            hexcode: user.hexcode
+          });
+          return;
+        }
+      }
+
+      socket.emit('username-set');
+
       users.set(socket.id, { username, hexcode, status: 'online', lastSeen: new Date() });
       userHistory.push({ id: socket.id, username, hexcode, status: 'online', lastSeen: new Date() });
 
@@ -68,7 +102,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('message', (message: string) => {
       const user = users.get(socket.id);
 
-      const isValidMessage = validateMessage(message);
+      const isValidMessage = validateText(message);
 
       if (isValidMessage && user) {
         const sanitizedMessage = xss(message, {

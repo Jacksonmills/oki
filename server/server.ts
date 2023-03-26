@@ -4,8 +4,12 @@ import { Server } from 'socket.io';
 import path from 'path';
 import { createSocketController } from './socketController';
 import { UserObj, UserHistory } from '../shared/types';
+import cookieParser from 'cookie-parser';
+import { v4 as uuid } from 'uuid';
 
 const app = express();
+app.use(cookieParser());
+
 export const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
