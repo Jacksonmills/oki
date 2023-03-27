@@ -7,9 +7,10 @@ import ColorSwatchPicker from './ColorSwatchPicker';
 type UsernameModalProps = {
   onSubmit: (username: string, hexcode: string) => void,
   userColors: string[],
+  errorMessage: string | null;
 };
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors }) => {
+const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors, errorMessage }) => {
   const [username, setUsername] = useState('');
   const [hexcode, setHexcode] = useState('#ff0006');
 
@@ -30,6 +31,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors }) =
           onClick={handleSubmit}
           placeholder='Type a username...'
         />
+        {errorMessage && <Error>{errorMessage}</Error>}
         <ColorHeading>Pick a color!</ColorHeading>
         <ColorSwatchPicker
           userColors={userColors}
@@ -40,6 +42,10 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors }) =
     </Modal>
   );
 };
+
+const Error = styled.p`
+  color: #ff0000;
+`;
 
 const Form = styled.form`
   background-color: #333333;

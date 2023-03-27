@@ -35,6 +35,7 @@ const App = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [userCount, setUserCount] = useState(0);
   const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const addMessage = (message: MessageObject) => {
@@ -100,7 +101,12 @@ const App = () => {
 
   const handleModalSubmit = (username: string, hexcode: string) => {
     socket.emit('set-username', { username, hexcode });
-    setShowModal(false);
+    socket.once('username-set', () => {
+      setShowModal(false);
+    });
+    socket.once('username-invalid', () => {
+      setErrorMessage('Invalid username. Please choose a different username.');
+    });
   };
 
   const getOnlineUserColors = () => {
@@ -132,6 +138,7 @@ const App = () => {
         <UsernameModal
           onSubmit={handleModalSubmit}
           userColors={getOnlineUserColors()}
+          errorMessage={errorMessage}
         />
       )}
     </Wrapper>
