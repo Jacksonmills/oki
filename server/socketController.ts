@@ -8,12 +8,19 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     io.emit('live-users-count', users.size);
   };
 
+  const disconnectTimeouts = new Map<string, NodeJS.Timeout>();
+
+  const removeUserFromHistory = (userId: string) => {
+    console.log('removing user from history', userId);
+    userHistory = userHistory.filter(user => user.id !== userId);
+  };
+
   io.on('connection', (socket) => {
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
         user.xp += xpToAdd; // add xp
-        const newLevel = Math.floor(user.xp / 10) + 1; // 100 xp per level
+        const newLevel = Math.floor(user.xp / 100) + 1; // 100 xp per level
         const levelChanged = newLevel !== user.level; // check if level changed
 
         socket.emit('update-xp', user.xp); // emit xp update
@@ -118,6 +125,14 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         });
         user.status = 'offline';
         users.delete(socket.id);
+
+        const timeout = setTimeout(() => {
+          removeUserFromHistory(socket.id);
+          disconnectTimeouts.delete(socket.id);
+          io.emit('user-history', userHistory);
+        }, 60 * 60 * 1000);
+
+        disconnectTimeouts.set(socket.id, timeout);
       }
       emitUserCount();
       io.emit('user-history', userHistory);

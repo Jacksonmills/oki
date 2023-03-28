@@ -15,37 +15,41 @@ export const UserModal = ({ users, onClose }: UserModalProps) => {
   const [filteredUsers, setFilteredUsers] = useState(users);
 
   useEffect(() => {
-    const filterOfflineUsers = () => {
-      console.log('filterOfflineUsers executed');
+    const timers: NodeJS.Timeout[] = [];
+    const oneHour = 60 * 60 * 1000;
+
+    const filterOfflineUser = (user: UserObj) => {
       const now = new Date();
-      // const oneHour = 60 * 60 * 1000;
-      const oneHour = 60 * 1000; // for testing
+      const timeDifference = now.getTime() - (user.disconnectTime?.getTime() || 0);
 
-      const updatedUsers: UserObj[] = users.reduce((acc: UserObj[], user: UserObj) => {
-        if (user.status === 'online') {
-          acc.push(user);
-        } else {
-          // Check if it's been an hour since the specific user's disconnect event
-          const timeDifference = now.getTime() - (user.disconnectTime?.getTime() || 0);
-          if (user.disconnectTime && timeDifference < oneHour) {
-            acc.push(user);
-          }
-        }
-        return acc;
-      }, []);
-
-      setFilteredUsers(updatedUsers);
+      if (user.status === 'offline' && timeDifference >= oneHour) {
+        setFilteredUsers(prevUsers => prevUsers.filter(u => u.username !== user.username));
+      }
     };
 
-    filterOfflineUsers();
-    const timer = setTimeout(() => {
-      filterOfflineUsers();
-    }, 60 * 1000);
+    users.forEach(user => {
+      if (user.status === 'offline' && user.disconnectTime) {
+        const now = new Date();
+        const timeDifference = now.getTime() - user.disconnectTime.getTime();
+        const timeLeft = oneHour - timeDifference;
+
+        if (timeLeft > 0) {
+          const timer = setTimeout(() => {
+            filterOfflineUser(user);
+          }, timeLeft);
+
+          timers.push(timer);
+        } else {
+          filterOfflineUser(user);
+        }
+      }
+    });
 
     return () => {
-      clearInterval(timer);
+      timers.forEach(timer => clearTimeout(timer));
     };
   }, [users]);
+
 
   const onlineUsers = filteredUsers.filter(user => user.status === 'online');
   const offlineUsers = filteredUsers.filter(user => user.status === 'offline');

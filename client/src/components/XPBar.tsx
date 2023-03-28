@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useUserContext } from '../UserContext';
+import { COLORS } from '../constants';
 
 const XPBar = () => {
   const { xp, level } = useUserContext();
-  const XPPerLevel = 10;
+  const XPPerLevel = 100;
   const xpGainedForCurrentLevel = xp % XPPerLevel;
   const progress = (xpGainedForCurrentLevel / XPPerLevel) * 100;
 
@@ -24,7 +25,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  top: 6px;
+  top: 4px;
   left: 100px;
   background-color: #17171c;
   padding: 6px;
@@ -32,18 +33,20 @@ const Wrapper = styled.div`
 `;
 
 const Bar = styled.div`
-  margin-left: 5px;
-  width: 200px;
+  margin-left: 6px;
+  width: 20vw;
   background-color: #000000;
   border-radius: 50px;
 `;
 
 const Progress = styled.div<{ progress: number; }>`
-  background-color: #4c7aaf;
+  background: ${COLORS.gradient};
+  background-repeat: no-repeat;
   border: 1px solid #000000;
   height: 4px;
   border-radius: 50px;
   width: ${({ progress }) => `${progress}%`};
+  ${({ progress }) => progress !== 0 && "transition: width 0.5s ease;"}
 `;
 
 const Level = styled.div`
@@ -52,7 +55,7 @@ const Level = styled.div`
 
 const Crown = styled.div<{ level: number; }>`
   position: absolute;
-  left: 2px;
+  left: 4px;
   display: flex;
   width: 10px;
   height: 10px;

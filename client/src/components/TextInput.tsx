@@ -15,9 +15,6 @@ const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onCl
     onChange(e.target.value);
   };
 
-  // lets write a react hook that would validate the input and check it for bad words or other type of moderation that we want to do as a twitch like chat app for live streams
-  // const [badWords, setBadWords] = useState<string[]>([]);
-
   // draw with me style mini inline chat game
   // const [drawWithMe, setDrawWithMe] = useState<string[]>([]);
 
@@ -40,12 +37,16 @@ const Input = styled.input`
   width: 100%;
   border: none;
   background-color: transparent;
-  padding: 0 1.2em;
+  padding: 0 0.5em;
   font-size: ${16 / 16}rem;
 
   &:hover, &:focus, &:focus-visible {
     border: none;
     outline: none;
+  }
+
+  @media (min-width: 768px) {
+    padding: 0 1em;
   }
 `;
 
@@ -74,7 +75,7 @@ const Wrapper = styled.div`
   flex-basis: 100%;
   border: 1px solid transparent;
   border-radius: 8px;
-  padding: 0.5em;
+  padding: 0.25em;
   font-size: 1em;
   transition: border-color 0.25s;
   background-color: #2b2a33;
@@ -93,6 +94,10 @@ const Wrapper = styled.div`
       border: none;
       outline: none;
     }
+  }
+
+  @media (min-width: 768px) {
+    padding: 0.5em;
   }
 `;
 
