@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import MessageList, { MessageListProps } from './components/MessageList';
 import MessageInput from './components/MessageInput';
-import { socket } from './utils/socket';
 import styled from 'styled-components';
 import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
 import Logo from './components/Logo';
+import { socket } from './utils/socket';
 
 export type ServerMessageTypeUnion = 'connected' | 'disconnected';
 
@@ -100,6 +100,7 @@ const App = () => {
 
 
   const handleModalSubmit = (username: string, hexcode: string) => {
+    console.log('submitting modal', username, hexcode);
     socket.emit('set-username', { username, hexcode });
     socket.once('username-set', () => {
       setShowModal(false);

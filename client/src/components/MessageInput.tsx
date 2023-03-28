@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { socket } from '../utils/socket';
 import styled from 'styled-components';
 import TextInput from './TextInput';
+import XPBar from './XPBar';
+import { socket } from '../utils/socket';
+import { useUserContext } from '../UserContext';
 
 const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣'];
 export const MESSAGE_INPUT_HEIGHT = '86px';
@@ -24,10 +26,12 @@ const MessageInput: React.FC = ({ className }: { className?: string; }) => {
     if (input === '') return;
     socket.emit('message', input);
     setInput('');
+    socket.emit('add-xp', 1);
   };
 
   const handleEmojiClick = () => {
     socket.emit('message', nextEmoji);
+    socket.emit('add-xp', 1);
     setNextEmoji(getRandomEmoji());
   };
 
@@ -37,6 +41,7 @@ const MessageInput: React.FC = ({ className }: { className?: string; }) => {
         <EmojiButton type="button" onClick={handleEmojiClick}>
           {nextEmoji}
         </EmojiButton>
+        <XPBar />
         <TextInput
           buttonText='Send'
           value={input}
@@ -63,6 +68,7 @@ const Form = styled.form`
 `;
 
 const EmojiButton = styled.button`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;

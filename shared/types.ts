@@ -3,6 +3,8 @@ export interface UserObj {
   hexcode: string;
   status: 'online' | 'offline';
   lastSeen: Date;
+  xp: number;
+  level: number;
   disconnectTime?: Date;
 }
 

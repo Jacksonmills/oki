@@ -9,6 +9,27 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
   };
 
   io.on('connection', (socket) => {
+    socket.on('add-xp', (xpToAdd: number) => {
+      const user = users.get(socket.id);
+      if (user) {
+        user.xp += xpToAdd; // add xp
+        const newLevel = Math.floor(user.xp / 10) + 1; // 100 xp per level
+        const levelChanged = newLevel !== user.level; // check if level changed
+
+        socket.emit('update-xp', user.xp); // emit xp update
+
+        if (levelChanged) {
+          user.level = newLevel; // set new level
+          socket.emit('update-level', user.level); // emit level update
+        }
+
+        const userIndex = userHistory.findIndex(u => u.id === socket.id);
+        if (userIndex !== -1) {
+          userHistory[userIndex].xp = user.xp; // update xp in user history
+          userHistory[userIndex].level = user.level; // update level in user history
+        }
+      }
+    });
 
     socket.on('get-live-users-count', () => {
       socket.emit('live-users-count', users.size);
@@ -20,8 +41,23 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
       } else {
         socket.emit('username-set');
 
-        users.set(socket.id, { username, hexcode, status: 'online', lastSeen: new Date() });
-        userHistory.push({ id: socket.id, username, hexcode, status: 'online', lastSeen: new Date() });
+        users.set(socket.id, {
+          username,
+          hexcode,
+          status: 'online',
+          lastSeen: new Date(),
+          xp: 0,
+          level: 1
+        });
+        userHistory.push({
+          id: socket.id,
+          username,
+          hexcode,
+          status: 'online',
+          lastSeen: new Date(),
+          xp: 0,
+          level: 1
+        });
 
         io.emit('user-connected', {
           type: 'connected',
