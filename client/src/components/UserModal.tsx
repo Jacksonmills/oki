@@ -1,59 +1,17 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Username from './Username';
 import Modal from './Modal';
 import { X } from 'react-feather';
 import Dropdown from './Dropdown';
-import { UserObj } from '../App';
+import { useUserContext } from '../UserContext';
 
 type UserModalProps = {
-  users: UserObj[];
   onClose: () => void;
 };
 
-export const UserModal = ({ users, onClose }: UserModalProps) => {
-  const [filteredUsers, setFilteredUsers] = useState(users);
-
-  useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-    const oneHour = 60 * 60 * 1000;
-
-    const filterOfflineUser = (user: UserObj) => {
-      const now = new Date();
-      const timeDifference = now.getTime() - (user.disconnectTime?.getTime() || 0);
-
-      if (user.status === 'offline' && timeDifference >= oneHour) {
-        setFilteredUsers(prevUsers => prevUsers.filter(u => u.username !== user.username));
-      }
-    };
-
-    users.forEach(user => {
-      if (user.status === 'offline' && user.disconnectTime) {
-        const now = new Date();
-        const timeDifference = now.getTime() - user.disconnectTime.getTime();
-        const timeLeft = oneHour - timeDifference;
-
-        if (timeLeft > 0) {
-          const timer = setTimeout(() => {
-            filterOfflineUser(user);
-          }, timeLeft);
-
-          timers.push(timer);
-        } else {
-          filterOfflineUser(user);
-        }
-      }
-    });
-
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, [users]);
-
-
-  const onlineUsers = filteredUsers.filter(user => user.status === 'online');
-  const offlineUsers = filteredUsers.filter(user => user.status === 'offline');
-  console.log(offlineUsers);
+export const UserModal = ({ onClose }: UserModalProps) => {
+  const { onlineUsers, offlineUsers } = useUserContext();
 
   return (
     <Modal onClose={onClose}>
