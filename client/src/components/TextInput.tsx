@@ -8,9 +8,10 @@ type TextInputProps = {
   onClick?: (event: React.SyntheticEvent) => void;
   placeholder?: string;
   disabled?: boolean;
+  forwardRef?: React.Ref<HTMLInputElement>;
 };
 
-const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onClick, placeholder, disabled }) => {
+const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onClick, placeholder, disabled, forwardRef }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
@@ -27,6 +28,7 @@ const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onCl
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
+        ref={forwardRef ? forwardRef : null}
       />
       <Button type="button" onClick={onClick} disabled={disabled}>{buttonText}</Button>
     </Wrapper>

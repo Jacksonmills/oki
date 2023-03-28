@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import TextInput from './TextInput';
 import XPBar from './XPBar';
@@ -12,7 +12,7 @@ const getRandomEmoji = () => {
   return emojis[randomIndex];
 };
 
-const MessageInput: React.FC = ({ className }: { className?: string; }) => {
+const MessageInput: React.FC = ({ className, forwardRef }: { className?: string; forwardRef?: React.Ref<HTMLInputElement>; }) => {
   const [input, setInput] = useState('');
   const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
 
@@ -47,6 +47,7 @@ const MessageInput: React.FC = ({ className }: { className?: string; }) => {
           onChange={setInput}
           onClick={handleSubmit}
           placeholder='Type a message...'
+          forwardRef={forwardRef ? forwardRef : null}
         />
       </Form>
     </Wrapper>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MessageList, { MessageListProps } from './components/MessageList';
 import MessageInput from './components/MessageInput';
 import styled from 'styled-components';
@@ -38,6 +38,8 @@ const App = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const handleModalSubmit = (username: string, hexcode: string) => {
     console.log('submitting modal', username, hexcode);
     socket.emit('set-username', { username, hexcode });
@@ -55,13 +57,19 @@ const App = () => {
       .map((user) => user.hexcode);
   };
 
+  useEffect(() => {
+    if (!showModal && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showModal]);
+
   return (
     <Wrapper>
       <Header>
         <HeaderContent>
           <LogoWrapper>
             <StyledLogo />
-            <LogoText>Oki</LogoText>
+            <LogoText>OKI</LogoText>
           </LogoWrapper>
           <LiveUsers
             count={userCount}
@@ -72,7 +80,7 @@ const App = () => {
         </HeaderContent>
       </Header>
       <StyledMessageList />
-      <StyledMessageInput />
+      <StyledMessageInput forwardRef={inputRef} />
 
       {showModal && (
         <UsernameModal
@@ -94,6 +102,7 @@ const LogoText = styled.h1`
   font-size: 18px;
   color: #fff;
   margin: 0;
+  font-family: 'gridular';
 
   @media (min-width: 768px) {
     display: inline-flex;
@@ -111,8 +120,7 @@ const Header = styled.header`
 `;
 
 const StyledMessageList = styled(MessageList)``;
-const StyledMessageInput = styled(MessageInput)`
-`;
+const StyledMessageInput = styled(MessageInput) <{ forwardRef: React.Ref<HTMLInputElement>; }>``;
 
 const Wrapper = styled.div`
   display: flex;
