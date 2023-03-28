@@ -34,7 +34,7 @@ export const UserModal = ({ onClose }: UserModalProps) => {
         </UserList>
       </Dropdown>
       {offlineUsers.length > 0 && (
-        <Dropdown title={`Offline Users (${offlineUsers.length})`} defaultOpen>
+        <Dropdown title={`Offline Users (${offlineUsers.length})`}>
           <UserList>
             {offlineUsers.map((user, index) => (
               <User key={index} status={user.status}>
@@ -73,7 +73,6 @@ const User = styled.li<{ status: 'online' | 'offline'; }>`
   align-items: baseline;
   gap: 8px;
   background-color: #17171c;
-  border-radius: 0.25rem;
   padding: 10px;
 `;
 

@@ -8,6 +8,7 @@ import Logo from './components/Logo';
 import { socket } from './utils/socket';
 import { useUserContext } from './UserContext';
 import { useMessageContext } from './MessageContext';
+import Logo2 from './components/Logo2';
 
 export type ServerMessageTypeUnion = 'connected' | 'disconnected';
 
@@ -84,7 +85,7 @@ const App = () => {
   );
 };
 
-const StyledLogo = styled(Logo)`
+const StyledLogo = styled(Logo2)`
   width: 1em;
   height: 1em;
 `;

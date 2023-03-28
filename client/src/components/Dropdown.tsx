@@ -13,7 +13,7 @@ const Dropdown = ({ title, children, defaultOpen = false }: DropdownProps) => {
 
   return (
     <DropdownWrapper>
-      <DropdownTitle onClick={() => setIsOpen(!isOpen)}>
+      <DropdownTitle isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
         {title}
         <AnimatedChevron
           style={{
@@ -38,7 +38,20 @@ const InnerWrapper = styled.div`
   padding-right: 0.25rem;
 `;
 
-const DropdownTitle = styled.h3`
+const DropdownTitle = styled.h3<{
+  isOpen: boolean,
+}>`
+  @keyframes borderRadiusChange {
+    0%, 98% {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    100% {
+      border-bottom-right-radius: 0.25rem;
+      border-bottom-left-radius: 0.25rem;
+    }
+  }
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,9 +59,10 @@ const DropdownTitle = styled.h3`
   margin: 0;
   padding: 0.5rem;
   background-color: #17171c;
-  border-radius: 0.25rem;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  transition: border-radius 0.06s ease;
+  animation: ${({ isOpen }) => (!isOpen ? 'borderRadiusChange 0.24s forwards' : 'none')};
 `;
 
 const DropdownContent = styled.div<{
