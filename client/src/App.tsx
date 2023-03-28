@@ -6,10 +6,12 @@ import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
 import Logo from './components/Logo';
 import { socket } from './utils/socket';
+import { useUserContext } from './UserContext';
+import { useMessageContext } from './MessageContext';
 
 export type ServerMessageTypeUnion = 'connected' | 'disconnected';
 
-type MessageObject = {
+export type MessageObject = {
   content: string;
   isServerMessage: boolean;
   type: ServerMessageTypeUnion;
@@ -30,74 +32,11 @@ export interface UserHistory extends UserObj {
 }
 
 const App = () => {
-  const [messages, setMessages] = useState<MessageObject[]>([]);
+  const { messages } = useMessageContext();
+  const { userCount, userHistory } = useUserContext();
   const [showModal, setShowModal] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [userCount, setUserCount] = useState(0);
-  const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const addMessage = (message: MessageObject) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    };
-
-    const handleUserConnectionEvent = (eventType: 'connected' | 'disconnected', data: { message: string, username: string, hexcode: string; }) => {
-      const now = new Date();
-      addMessage({
-        content: data.message,
-        isServerMessage: true,
-        type: eventType,
-        username: data.username,
-        hexcode: data.hexcode
-      });
-      setUserHistory((prevUserHistory) => {
-        return prevUserHistory.map((user) => {
-          if (user.username === data.username) {
-            return { ...user, status: eventType === 'connected' ? 'online' : 'offline', lastSeen: now };
-          }
-          return user;
-        });
-      });
-      socket.emit('get-live-users-count');
-    };
-
-    const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
-      handleUserConnectionEvent('connected', data);
-    };
-
-    const handleDisconnection = (data: { message: string, username: string, hexcode: string; }) => {
-      handleUserConnectionEvent('disconnected', data);
-    };
-
-    const handleUserHistory = (userHistory: UserHistory[]) => {
-      const now = new Date();
-      const updatedUserHistory = userHistory.map(user => ({
-        ...user,
-        lastSeen: user.lastSeen ? new Date(user.lastSeen) : now,
-        disconnectTime: user.disconnectTime ? new Date(user.disconnectTime) : undefined
-      }));
-      setUserHistory(updatedUserHistory);
-    };
-
-    socket.emit('get-live-users-count');
-
-    socket.on('user-history', handleUserHistory);
-    socket.on('user-connected', (data) => handleConnection({ ...data, type: "connected" }));
-    socket.on('user-disconnected', (data) => handleDisconnection({ ...data, type: "disconnected" }));
-    socket.on('message', addMessage);
-    socket.on('live-users-count', setUserCount);
-
-    // Cleanup function to remove event listeners when the component is unmounted
-    return () => {
-      socket.off('user-history', handleUserHistory);
-      socket.off('user-connected', handleConnection);
-      socket.off('user-disconnected', handleDisconnection);
-      socket.off('message', addMessage);
-      socket.off('live-users-count', setUserCount);
-    };
-  }, []);
-
 
   const handleModalSubmit = (username: string, hexcode: string) => {
     console.log('submitting modal', username, hexcode);

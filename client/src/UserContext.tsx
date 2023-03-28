@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { socket } from "./utils/socket";
-import { UserObj } from "./App";
+import { MessageObject, UserHistory, UserObj } from "./App";
+import { useMessageContext } from "./MessageContext";
 
 interface UserContextState {
   xp: number;
   level: number;
   onlineUsers: UserObj[];
   offlineUsers: UserObj[];
+  userCount: number;
+  userHistory: UserHistory[];
 }
 
 const UserContext = createContext<UserContextState>({
@@ -14,6 +17,8 @@ const UserContext = createContext<UserContextState>({
   level: 1,
   onlineUsers: [],
   offlineUsers: [],
+  userCount: 0,
+  userHistory: []
 });
 
 export function useUserContext() {
@@ -21,37 +26,97 @@ export function useUserContext() {
 }
 
 export function UserProvider({ children }: { children: React.ReactNode; }) {
+  const { addMessage } = useMessageContext();
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [onlineUsers, setOnlineUsers] = useState<UserObj[]>([]);
   const [offlineUsers, setOfflineUsers] = useState<UserObj[]>([]);
+  const [userCount, setUserCount] = useState(0);
+  const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
 
   useEffect(() => {
-    socket.on("update-xp", (newXp: number) => {
-      setXp(newXp);
-    });
+    const handleUserConnectionEvent = (eventType: 'connected' | 'disconnected', data: { message: string, username: string, hexcode: string; }) => {
+      const now = new Date();
+      addMessage({
+        content: data.message,
+        isServerMessage: true,
+        type: eventType,
+        username: data.username,
+        hexcode: data.hexcode
+      });
+      setUserHistory((prevUserHistory) => {
+        return prevUserHistory.map((user) => {
+          if (user.username === data.username) {
+            return { ...user, status: eventType === 'connected' ? 'online' : 'offline', lastSeen: now };
+          }
+          return user;
+        });
+      });
+      socket.emit('get-live-users-count');
+    };
 
-    socket.on("update-level", (newLevel: number) => {
-      setLevel(newLevel);
-    });
+    const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
+      handleUserConnectionEvent('connected', data);
+    };
 
-    socket.on("user-history", (users: UserObj[]) => {
-      const online = users.filter(user => user.status === "online");
-      const offline = users.filter(user => user.status === "offline");
+    const handleDisconnection = (data: { message: string, username: string, hexcode: string; }) => {
+      handleUserConnectionEvent('disconnected', data);
+    };
+
+    const handleUserHistory = (userHistory: UserHistory[]) => {
+      const now = new Date();
+      const updatedUserHistory = userHistory.map(user => ({
+        ...user,
+        lastSeen: user.lastSeen ? new Date(user.lastSeen) : now,
+        disconnectTime: user.disconnectTime ? new Date(user.disconnectTime) : undefined
+      }));
+      setUserHistory(updatedUserHistory);
+
+      const online = updatedUserHistory.filter(user => user.status === "online");
+      const offline = updatedUserHistory.filter(user => user.status === "offline");
 
       setOnlineUsers(online);
       setOfflineUsers(offline);
-    });
+    };
+
+    const updateXP = (newXp: number) => {
+      setXp(newXp);
+    };
+
+    const updateLevel = (newLevel: number) => {
+      setLevel(newLevel);
+    };
+
+    socket.emit('get-live-users-count');
+
+    socket.on('live-users-count', setUserCount);
+    socket.on("update-xp", updateXP);
+    socket.on("update-level", updateLevel);
+    socket.on("user-history", handleUserHistory);
+    socket.on('user-connected', (data) => handleConnection({ ...data, type: "connected" }));
+    socket.on('user-disconnected', (data) => handleDisconnection({ ...data, type: "disconnected" }));
 
     return () => {
-      socket.off("update-xp");
-      socket.off("update-level");
-      socket.off("user-history");
+      socket.off('live-users-count', setUserCount);
+      socket.off("update-xp", updateXP);
+      socket.off("update-level", updateLevel);
+      socket.off("user-history", handleUserHistory);
+      socket.off('user-connected', handleConnection);
+      socket.off('user-disconnected', handleDisconnection);
     };
   }, [socket]);
 
   return (
-    <UserContext.Provider value={{ xp, level, onlineUsers, offlineUsers }}>
+    <UserContext.Provider
+      value={{
+        xp,
+        level,
+        onlineUsers,
+        offlineUsers,
+        userCount,
+        userHistory
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
