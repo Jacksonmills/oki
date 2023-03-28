@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import TextInput from './TextInput';
 import XPBar from './XPBar';
 import { socket } from '../utils/socket';
-import { useUserContext } from '../UserContext';
 
-const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣'];
+const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
 export const MESSAGE_INPUT_HEIGHT = '86px';
 
 const getRandomEmoji = () => {

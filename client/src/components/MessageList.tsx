@@ -3,19 +3,14 @@ import styled from "styled-components";
 import { ServerMessageTypeUnion } from "../App";
 import Username from "./Username";
 import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
+import { useMessageContext } from "../MessageContext";
 
 export type MessageListProps = {
-  messages: {
-    content: string,
-    isServerMessage: boolean,
-    type: ServerMessageTypeUnion,
-    username?: string,
-    hexcode?: string,
-  }[];
   className?: string;
 };
 
-const MessageList = ({ messages, className }: MessageListProps) => {
+const MessageList = ({ className }: MessageListProps) => {
+  const { messages } = useMessageContext();
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);

@@ -32,7 +32,6 @@ export interface UserHistory extends UserObj {
 }
 
 const App = () => {
-  const { messages } = useMessageContext();
   const { userCount, userHistory } = useUserContext();
   const [showModal, setShowModal] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -71,7 +70,7 @@ const App = () => {
           />
         </HeaderContent>
       </Header>
-      <StyledMessageList messages={messages} />
+      <StyledMessageList />
       <StyledMessageInput />
 
       {showModal && (

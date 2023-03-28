@@ -1,8 +1,9 @@
-import { MouseEvent } from 'react';
+import React from 'react';
 import { User } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
 import { UserObj } from '../App';
+import { useUserContext } from '../UserContext';
 
 type LiveUsersProps = {
   count: number;
@@ -11,16 +12,17 @@ type LiveUsersProps = {
   showUserModal: boolean;
 };
 
-const LiveUsers = ({ count, userHistory, showUserModal, onToggleModal }: LiveUsersProps) => {
-  const isLiveChat = count >= 2;
+const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
+  const { userCount } = useUserContext();
+  const isLiveChat = userCount >= 2;
 
   return (
     <Wrapper>
       <LiveUsersWrapper onClick={onToggleModal}>
         <StyledUser />{' '}
-        {count}
+        {userCount}
       </LiveUsersWrapper>
-      {showUserModal && <UserModal users={userHistory} onClose={onToggleModal} />}
+      {showUserModal && <UserModal onClose={onToggleModal} />}
       <DotWrapper>
         {isLiveChat ? (
           <>
