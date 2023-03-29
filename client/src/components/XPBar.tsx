@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useUserContext } from '@/UserContext';
-import { COLORS } from '@/constants';
-import { XP_PER_LEVEL } from '@shared/levelingSystem';
 import { colorContrast } from '@/utils/colorContrast';
+import { LEVELING_SYSTEM } from '@/constants';
 
 type LevelColors = {
   background: string;
@@ -13,8 +12,9 @@ type LevelColors = {
 
 const XPBar = () => {
   const { xp, level } = useUserContext();
-  const xpGainedForCurrentLevel = xp % XP_PER_LEVEL;
-  const targetProgress = (xpGainedForCurrentLevel / XP_PER_LEVEL) * 100;
+  const xpPerLevel = LEVELING_SYSTEM.XP_PER_LEVEL;
+  const xpGainedForCurrentLevel = xp % xpPerLevel;
+  const targetProgress = (xpGainedForCurrentLevel / xpPerLevel) * 100;
 
   const [progress, setProgress] = useState(targetProgress);
   const [levelUp, setLevelUp] = useState(false);
@@ -161,6 +161,7 @@ const Progress = styled.div<{ progress: number; levelColors: LevelColors; }>`
   background-repeat: no-repeat;
   border: 1px solid ${({ levelColors }) => levelColors.border};
   border-right: ${({ progress }) => (progress === 100 ? 'auto' : 'none')};
+  border-radius: ${({ progress }) => (progress === 100 ? '50px' : '0')};
   height: 8px;
   width: ${({ progress }) => `${progress}%`};
   transition: width 0.5s ease;
