@@ -18,7 +18,6 @@
   "include": [
     "./shared/**/*.ts",
     "./client/src/**/*.ts",
-    "./client/src/**/*.tsx",
     "./server/**/*.ts"
   ]
 }

@@ -1,4 +1,4 @@
-import { colorContrast } from '@/utils/colorContrast';
+import { colorContrast } from '../utils/colorContrast';
 
 export type LevelColors = {
   background: string;

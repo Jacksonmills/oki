@@ -4,7 +4,7 @@ import Username from './Username';
 import Modal from './Modal';
 import { X } from 'react-feather';
 import Dropdown from './Dropdown';
-import { useUserContext } from '@/UserContext';
+import { useUserContext } from '../UserContext';
 
 type UserModalProps = {
   onClose: () => void;

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import MessageList from '@/components/MessageList';
-import MessageInput from '@/components/MessageInput';
 import styled from 'styled-components';
-import UsernameModal from '@/components/UsernameModal';
-import LiveUsers from '@/components/LiveUsers';
-import { socket } from '@/utils/socket';
-import { useUserContext } from '@/UserContext';
-import Logo2 from '@/components/Logo2';
+import { useUserContext } from './UserContext';
+import { socket } from './utils/socket';
+import LiveUsers from './components/LiveUsers';
+import UsernameModal from './components/UsernameModal';
+import Logo2 from './components/Logo2';
+import MessageList from './components/MessageList';
+import MessageInput from './components/MessageInput';
 
 const App = () => {
   const { userCount, userHistory } = useUserContext();

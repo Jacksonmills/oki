@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import styled, { css } from 'styled-components';
-import { useLevelingContext } from '@/LevelingContext';
-import { LevelColors, getLevelColors } from '@/utils/getLevelColors';
+import { useLevelingContext } from '../LevelingContext';
+import { LevelColors, getLevelColors } from '../utils/getLevelColors';
 
 const XPBar = () => {
   const { level, progress, isLevelingUp } = useLevelingContext();
@@ -16,7 +16,7 @@ const XPBar = () => {
         <Level>{level}</Level>
       </Crown>
       <Bar progress={progress} isLevelingUp={isLevelingUp}>
-        <Progress progress={progress} levelColors={levelColors} />
+        <Progress progress={progress} levelColors={levelColors} isLevelingUp={isLevelingUp} />
       </Bar>
     </Wrapper>
   );

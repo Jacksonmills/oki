@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { socket } from "@/utils/socket";
-import { useMessageContext } from "@/MessageContext";
-import { UserHistory, UserObj } from "@/types";
+import { socket } from "./utils/socket";
+import { useMessageContext } from "./MessageContext";
+import { UserHistory, UserObj } from "./types";
 import { useLevelingContext } from "./LevelingContext";
 
 interface UserContextState {

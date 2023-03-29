@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { socket } from "@/utils/socket";
-import { MessageObj } from "@/types";
+import { socket } from "./utils/socket";
+import { MessageObj } from "./types";
 
 const MessageContext = createContext<{
   messages: MessageObj[];

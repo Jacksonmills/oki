@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Username from "./Username";
 import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
-import { useMessageContext } from "@/MessageContext";
-import { COLORS } from "@/constants";
+import { useMessageContext } from "../MessageContext";
+import { COLORS } from "../constants";
 import GradientBorder from "./GradientBorder";
 
 export type MessageListProps = {

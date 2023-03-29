@@ -1,4 +1,4 @@
-import { LEVELING_SYSTEM } from "@/constants";
+import { LEVELING_SYSTEM } from "../constants";
 import { useEffect, useState } from "react";
 
 function useLevelingSystem(initialXP = 0, initialLevel = 0) {
