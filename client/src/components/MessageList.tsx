@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { ServerMessageTypeUnion } from "../App";
 import Username from "./Username";
 import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
-import { useMessageContext } from "../MessageContext";
+import { useMessageContext } from "@/MessageContext";
 
 export type MessageListProps = {
   className?: string;

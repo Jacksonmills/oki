@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { MessageObject } from "./App";
-import { socket } from "./utils/socket";
+import { socket } from "@/utils/socket";
+import { MessageObj } from "@/types";
 
 const MessageContext = createContext<{
-  messages: MessageObject[];
-  addMessage: (message: MessageObject) => void;
+  messages: MessageObj[];
+  addMessage: (message: MessageObj) => void;
 }>({
   messages: [],
   addMessage: () => { },
@@ -15,9 +15,9 @@ export function useMessageContext() {
 }
 
 export function MessageProvider({ children }: { children: React.ReactNode; }) {
-  const [messages, setMessages] = useState<MessageObject[]>([]);
+  const [messages, setMessages] = useState<MessageObj[]>([]);
 
-  const addMessage = (message: MessageObject) => {
+  const addMessage = (message: MessageObj) => {
     setMessages((prevMessages) => [...prevMessages, message]);
   };
 
