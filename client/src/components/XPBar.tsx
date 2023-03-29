@@ -1,97 +1,18 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled, { css } from 'styled-components';
-import { useUserContext } from '@/UserContext';
-import { colorContrast } from '@/utils/colorContrast';
-import { LEVELING_SYSTEM } from '@/constants';
-
-type LevelColors = {
-  background: string;
-  border: string;
-  text: string;
-};
+import { useLevelingContext } from '@/LevelingContext';
+import { LevelColors, getLevelColors } from '@/utils/getLevelColors';
 
 const XPBar = () => {
-  const { xp, level } = useUserContext();
-  const xpPerLevel = LEVELING_SYSTEM.XP_PER_LEVEL;
-  const xpGainedForCurrentLevel = xp % xpPerLevel;
-  const targetProgress = (xpGainedForCurrentLevel / xpPerLevel) * 100;
-
-  const [progress, setProgress] = useState(targetProgress);
-  const [levelUp, setLevelUp] = useState(false);
-  const [prevLevel, setPrevLevel] = useState(level);
+  const { level, progress } = useLevelingContext();
 
   const levelColors = useMemo(() => {
-    switch (true) {
-      case level === 1:
-        return {
-          background: '#63ff1b',
-          border: '#336e18',
-          text: colorContrast('#63ff1b'),
-        };
-      case level === 2:
-        return {
-          background: '#f60b0b',
-          border: '#ffffff',
-          text: colorContrast('#f60b0b'),
-        };
-      case level === 3:
-        return {
-          background: '#ebca10',
-          border: '#ab801a',
-          text: colorContrast('#ebca10'),
-        };
-      case level === 4:
-        return {
-          background: '#ee11ee',
-          border: '#ffffff',
-          text: colorContrast('#ee11ee'),
-        };
-      case level === 5:
-        return {
-          background: '#ff8000',
-          border: '#ffffff',
-          text: colorContrast('#ff8000'),
-        };
-      case level === 6:
-        return {
-          background: '#0c45ef',
-          border: '#ffffff',
-          text: colorContrast('#0c45ef'),
-        };
-      default:
-        return {
-          background: '#ddfe09',
-          border: '#09e5fe',
-          text: colorContrast('#ddfe09'),
-        };
-    }
+    return getLevelColors(level);
   }, [level]);
 
   useEffect(() => {
-    if (level === 7 && prevLevel === 7 && targetProgress === 0) {
-      setProgress(100);
-      return;
-    }
-    if (targetProgress > 90) {
-      setLevelUp(true);
-      setProgress(100);
-    } else {
-      setProgress(targetProgress);
-    }
-  }, [targetProgress]);
-
-  useEffect(() => {
-    if (levelUp) {
-      setTimeout(() => {
-        setLevelUp(false);
-        setProgress(0);
-      }, 5000);
-    }
-  }, [levelUp]);
-
-  useEffect(() => {
-    setPrevLevel(level);
-  }, [level]);
+    console.log({ level, progress });
+  }, [level, progress]);
 
   return (
     <Wrapper>
@@ -168,6 +89,8 @@ const Progress = styled.div<{ progress: number; levelColors: LevelColors; }>`
 
 
 const Level = styled.div`
+  position: relative;
+  top: -1px;
 `;
 
 const Crown = styled.div<{ levelColors: LevelColors; }>`

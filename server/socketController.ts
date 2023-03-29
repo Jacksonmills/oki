@@ -25,7 +25,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         }
         user.xp += xpToAdd;
         const newLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
-        const levelChangedAndCanLevelUp = newLevel !== user.level && newLevel <= MAX_LEVEL;
+        const levelChangedAndCanLevelUp = newLevel > user.level && newLevel <= MAX_LEVEL;
 
         socket.emit('update-xp', user.xp);
 
@@ -46,8 +46,8 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
       const user = users.get(socket.id);
       if (user) {
         user.xp -= xpToRemove;
-        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
-        const levelChangedAndCanLevelDown = newLevel !== user.level && newLevel >= 1;
+        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) - 1;
+        const levelChangedAndCanLevelDown = newLevel >= 0 && newLevel < user.level;
 
         socket.emit('update-xp', user.xp);
 

@@ -12,7 +12,6 @@ export type MessageListProps = {
 
 const MessageList = ({ className }: MessageListProps) => {
   const { messages } = useMessageContext();
-  console.log(messages);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);

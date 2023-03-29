@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import TextInput from './TextInput';
 import XPBar from './XPBar';
 import { socket } from '@/utils/socket';
-import { useUserContext } from '@/UserContext';
+import { useLevelingContext } from '@/LevelingContext';
 
 const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
 export const MESSAGE_INPUT_HEIGHT = '86px';
@@ -14,10 +14,10 @@ const getRandomEmoji = () => {
 };
 
 const MessageInput: React.FC = ({ className, forwardRef }: { className?: string; forwardRef?: React.Ref<HTMLInputElement>; }) => {
-  const { xp, level } = useUserContext();
+  const { xp, level } = useLevelingContext();
   const [input, setInput] = useState('');
   const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
-  const isNoob = (cost: number) => xp < cost && level === 1;
+  const isNoob = (cost: number) => xp < cost && level === 0;
 
   useEffect(() => {
     setNextEmoji(getRandomEmoji());

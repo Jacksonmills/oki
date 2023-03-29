@@ -2,10 +2,9 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { socket } from "@/utils/socket";
 import { useMessageContext } from "@/MessageContext";
 import { UserHistory, UserObj } from "@/types";
+import { useLevelingContext } from "./LevelingContext";
 
 interface UserContextState {
-  xp: number;
-  level: number;
   onlineUsers: UserObj[];
   offlineUsers: UserObj[];
   userCount: number;
@@ -13,8 +12,6 @@ interface UserContextState {
 }
 
 const UserContext = createContext<UserContextState>({
-  xp: 0,
-  level: 1,
   onlineUsers: [],
   offlineUsers: [],
   userCount: 0,
@@ -27,8 +24,6 @@ export function useUserContext() {
 
 export function UserProvider({ children }: { children: React.ReactNode; }) {
   const { addMessage } = useMessageContext();
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
   const [onlineUsers, setOnlineUsers] = useState<UserObj[]>([]);
   const [offlineUsers, setOfflineUsers] = useState<UserObj[]>([]);
   const [userCount, setUserCount] = useState(0);
@@ -80,27 +75,15 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
       setOfflineUsers(offline);
     };
 
-    const updateXP = (newXp: number) => {
-      setXp(newXp);
-    };
-
-    const updateLevel = (newLevel: number) => {
-      setLevel(newLevel);
-    };
-
     socket.emit('get-live-users-count');
 
     socket.on('live-users-count', setUserCount);
-    socket.on("update-xp", updateXP);
-    socket.on("update-level", updateLevel);
     socket.on("user-history", handleUserHistory);
     socket.on('user-connected', (data) => handleConnection({ ...data, type: "connected" }));
     socket.on('user-disconnected', (data) => handleDisconnection({ ...data, type: "disconnected" }));
 
     return () => {
       socket.off('live-users-count', setUserCount);
-      socket.off("update-xp", updateXP);
-      socket.off("update-level", updateLevel);
       socket.off("user-history", handleUserHistory);
       socket.off('user-connected', handleConnection);
       socket.off('user-disconnected', handleDisconnection);
@@ -110,8 +93,6 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
   return (
     <UserContext.Provider
       value={{
-        xp,
-        level,
         onlineUsers,
         offlineUsers,
         userCount,

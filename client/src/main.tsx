@@ -5,13 +5,16 @@ import './index.css';
 import { UserProvider } from '@/UserContext';
 import { MessageProvider } from '@/MessageContext';
 import GlobalStyles from '@/components/GlobalStyles';
+import { LevelingProvider } from './LevelingContext';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <MessageProvider>
       <UserProvider>
-        <GlobalStyles />
-        <App />
+        <LevelingProvider>
+          <GlobalStyles />
+          <App />
+        </LevelingProvider>
       </UserProvider>
     </MessageProvider>
   </React.StrictMode>,
