@@ -40,6 +40,7 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
       addMessage({
         content: data.message,
         isServerMessage: true,
+        isEXMessage: false,
         type: eventType,
         username: data.username,
         hexcode: data.hexcode
