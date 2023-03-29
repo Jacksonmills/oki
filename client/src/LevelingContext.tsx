@@ -7,10 +7,12 @@ const LevelingContext = createContext<{
   level: number;
   xp: number;
   progress: number;
+  isLevelingUp: boolean;
 }>({
   level: 0,
   xp: 0,
   progress: 0,
+  isLevelingUp: false,
 });
 
 export function useLevelingContext() {
@@ -18,7 +20,7 @@ export function useLevelingContext() {
 }
 
 export function LevelingProvider({ children }: { children: React.ReactNode; }) {
-  const { xp, level, progress, setXp, setLevel } = useLevelingSystem();
+  const { xp, level, progress, setXp, setLevel, isLevelingUp } = useLevelingSystem();
 
   useEffect(() => {
     socket.on("update-xp", setXp);
@@ -31,7 +33,7 @@ export function LevelingProvider({ children }: { children: React.ReactNode; }) {
   }, []);
 
   return (
-    <LevelingContext.Provider value={{ level, xp, progress }}>
+    <LevelingContext.Provider value={{ level, xp, progress, isLevelingUp }}>
       {children}
     </LevelingContext.Provider>
   );

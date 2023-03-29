@@ -4,22 +4,18 @@ import { useLevelingContext } from '@/LevelingContext';
 import { LevelColors, getLevelColors } from '@/utils/getLevelColors';
 
 const XPBar = () => {
-  const { level, progress } = useLevelingContext();
+  const { level, progress, isLevelingUp } = useLevelingContext();
 
   const levelColors = useMemo(() => {
     return getLevelColors(level);
   }, [level]);
-
-  useEffect(() => {
-    console.log({ level, progress });
-  }, [level, progress]);
 
   return (
     <Wrapper>
       <Crown levelColors={levelColors}>
         <Level>{level}</Level>
       </Crown>
-      <Bar progress={progress}>
+      <Bar progress={progress} isLevelingUp={isLevelingUp}>
         <Progress progress={progress} levelColors={levelColors} />
       </Bar>
     </Wrapper>
@@ -37,14 +33,17 @@ const Wrapper = styled.div`
   border-radius: 50px;
 `;
 
-const Bar = styled.div<{ progress: number; }>`
+const Bar = styled.div<{
+  progress: number;
+  isLevelingUp: boolean;
+}>`
   position: relative;
   margin-left: 6px;
   width: 20vw;
   background-color: #000000;
   border-radius: 50px;
-  ${({ progress }) => {
-    if (progress > 90) {
+  ${({ progress, isLevelingUp }) => {
+    if (progress > 90 || isLevelingUp) {
       return css`
         animation: pulse 1s infinite;
       `;
@@ -76,14 +75,14 @@ const Bar = styled.div<{ progress: number; }>`
   }
 `;
 
-const Progress = styled.div<{ progress: number; levelColors: LevelColors; }>`
+const Progress = styled.div<{ progress: number; levelColors: LevelColors; isLevelingUp: boolean; }>`
   background: ${({ levelColors }) => levelColors.background};
   background-repeat: no-repeat;
   border: 1px solid ${({ levelColors }) => levelColors.border};
-  border-right: ${({ progress }) => (progress === 100 ? 'auto' : 'none')};
-  border-radius: ${({ progress }) => (progress === 100 ? '50px' : '0')};
+  border-right: ${({ progress, isLevelingUp }) => (progress === 100 || isLevelingUp ? 'auto' : 'none')};
+  border-radius: ${({ progress, isLevelingUp }) => (progress === 100 || isLevelingUp ? '50px' : '0')};
   height: 8px;
-  width: ${({ progress }) => `${progress}%`};
+  width: ${({ progress, isLevelingUp }) => (isLevelingUp ? '100%' : `${progress}%`)};
   transition: width 0.5s ease;
 `;
 
