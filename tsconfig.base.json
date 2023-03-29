@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.base",
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2018",
@@ -16,8 +15,7 @@
     }
   },
   "include": [
-    "./shared/**/*.ts",
-    "./client/src/**/*.ts",
-    "./server/**/*.ts"
+    ".",
+    "server/**/*.ts",
   ]
 }

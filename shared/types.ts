@@ -11,3 +11,13 @@ export interface UserObj {
 export interface UserHistory extends UserObj {
   id: string;
 }
+
+export type MessageObj = {
+  content: string;
+  isServerMessage: boolean;
+  type: ServerMessageTypeUnion;
+  username?: string;
+  hexcode?: string;
+};
+
+export type ServerMessageTypeUnion = 'connected' | 'disconnected';

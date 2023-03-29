@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { UserObj, UserHistory } from "../shared/types";
 import xss from "xss";
 import validateText from "./validateText";
+import { MAX_LEVEL, XP_PER_LEVEL } from "../shared/levelingSystem";
 
 export function createSocketController(io: Server, users: Map<string, UserObj>, userHistory: UserHistory[]) {
   const emitUserCount = () => {
@@ -19,21 +20,25 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
-        user.xp += xpToAdd; // add xp
-        const newLevel = Math.floor(user.xp / 100) + 1; // 100 xp per level
-        const levelChanged = newLevel !== user.level; // check if level changed
+        // if user level is max and user xp is max, don't add xp
+        if (user.level === MAX_LEVEL && user.xp === XP_PER_LEVEL * MAX_LEVEL) { // this is the max xp which calculates to 1000
+          return;
+        }
+        user.xp += xpToAdd;
+        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
+        const levelChangedAndCanLevelUp = newLevel !== user.level && newLevel <= MAX_LEVEL;
 
-        socket.emit('update-xp', user.xp); // emit xp update
+        socket.emit('update-xp', user.xp);
 
-        if (levelChanged) {
-          user.level = newLevel; // set new level
-          socket.emit('update-level', user.level); // emit level update
+        if (levelChangedAndCanLevelUp) {
+          user.level = newLevel;
+          socket.emit('update-level', user.level);
         }
 
         const userIndex = userHistory.findIndex(u => u.id === socket.id);
         if (userIndex !== -1) {
-          userHistory[userIndex].xp = user.xp; // update xp in user history
-          userHistory[userIndex].level = user.level; // update level in user history
+          userHistory[userIndex].xp = user.xp;
+          userHistory[userIndex].level = user.level;
         }
       }
     });

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { socket } from "./utils/socket";
-import { MessageObject, UserHistory, UserObj } from "./App";
 import { useMessageContext } from "./MessageContext";
+import { UserHistory, UserObj } from "@shared/types";
 
 interface UserContextState {
   xp: number;

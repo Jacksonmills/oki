@@ -33,7 +33,7 @@ const DropdownWrapper = styled.div`
 `;
 
 const InnerWrapper = styled.div`
-  max-height: 20vh;
+  max-height: 33vh;
   overflow-y: auto;
   padding-right: 0.25rem;
 `;
@@ -68,7 +68,7 @@ const DropdownTitle = styled.h3<{
 const DropdownContent = styled.div<{
   isOpen: boolean,
 }>`
-  max-height: ${({ isOpen }) => (isOpen ? '20vh' : '0')};
+  max-height: ${({ isOpen }) => (isOpen ? '50vh' : '0')};
   opacity: ${({ isOpen }) => (isOpen ? '1' : '0')};
   overflow: hidden;
   padding: 0.5rem;

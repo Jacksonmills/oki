@@ -2,8 +2,8 @@ import React from 'react';
 import { User } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
-import { UserObj } from '../App';
-import { useUserContext } from '../UserContext';
+import { useUserContext } from '@/UserContext';
+import { UserObj } from '@/shared/types';
 
 type LiveUsersProps = {
   count: number;

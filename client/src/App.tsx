@@ -10,28 +10,6 @@ import { useUserContext } from './UserContext';
 import { useMessageContext } from './MessageContext';
 import Logo2 from './components/Logo2';
 
-export type ServerMessageTypeUnion = 'connected' | 'disconnected';
-
-export type MessageObject = {
-  content: string;
-  isServerMessage: boolean;
-  type: ServerMessageTypeUnion;
-  username?: string;
-  hexcode?: string;
-};
-
-export interface UserObj {
-  username: string;
-  hexcode: string;
-  status: 'online' | 'offline';
-  lastSeen: Date;
-  disconnectTime?: Date;
-}
-
-export interface UserHistory extends UserObj {
-  id: string;
-}
-
 const App = () => {
   const { userCount, userHistory } = useUserContext();
   const [showModal, setShowModal] = useState(true);
