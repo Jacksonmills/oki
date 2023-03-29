@@ -4,6 +4,7 @@ import TextInput from './TextInput';
 import XPBar from './XPBar';
 import { socket } from '../utils/socket';
 import { useLevelingContext } from '../LevelingContext';
+import useLevelingSystem from '../hooks/use-leveling-system';
 
 const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
 export const MESSAGE_INPUT_HEIGHT = '86px';
@@ -14,7 +15,7 @@ const getRandomEmoji = () => {
 };
 
 const MessageInput: React.FC = ({ className, forwardRef }: { className?: string; forwardRef?: React.Ref<HTMLInputElement>; }) => {
-  const { xp, level } = useLevelingContext();
+  const { xp, level, addXp, removeXp } = useLevelingContext();
   const [input, setInput] = useState('');
   const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
   const isNoob = (cost: number) => xp < cost && level === 0;
@@ -34,10 +35,12 @@ const MessageInput: React.FC = ({ className, forwardRef }: { className?: string;
       socket.emit('ex-message', input);
       setInput('');
       socket.emit('remove-xp', xpCost);
+      removeXp(xpCost);
     } else {
       socket.emit('message', input);
       setInput('');
       socket.emit('add-xp', xpGain);
+      addXp(xpGain);
     }
   };
 
@@ -46,6 +49,7 @@ const MessageInput: React.FC = ({ className, forwardRef }: { className?: string;
     if (isNoob(xpCost)) return;
     socket.emit('message', nextEmoji);
     socket.emit('remove-xp', xpCost);
+    removeXp(xpCost);
     setNextEmoji(getRandomEmoji());
   };
 
