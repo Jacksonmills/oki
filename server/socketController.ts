@@ -20,8 +20,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
-        // if user level is max and user xp is max, don't add xp
-        if (user.level === MAX_LEVEL && user.xp === XP_PER_LEVEL * MAX_LEVEL) { // this is the max xp which calculates to 1000
+        if (user.level === MAX_LEVEL && user.xp === XP_PER_LEVEL * MAX_LEVEL) {
           return;
         }
         user.xp += xpToAdd;
@@ -31,6 +30,28 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         socket.emit('update-xp', user.xp);
 
         if (levelChangedAndCanLevelUp) {
+          user.level = newLevel;
+          socket.emit('update-level', user.level);
+        }
+
+        const userIndex = userHistory.findIndex(u => u.id === socket.id);
+        if (userIndex !== -1) {
+          userHistory[userIndex].xp = user.xp;
+          userHistory[userIndex].level = user.level;
+        }
+      }
+    });
+
+    socket.on('remove-xp', (xpToRemove: number) => {
+      const user = users.get(socket.id);
+      if (user) {
+        user.xp -= xpToRemove;
+        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
+        const levelChangedAndCanLevelDown = newLevel !== user.level && newLevel >= 1;
+
+        socket.emit('update-xp', user.xp);
+
+        if (levelChangedAndCanLevelDown) {
           user.level = newLevel;
           socket.emit('update-level', user.level);
         }
@@ -105,6 +126,31 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         io.emit('message', {
           content: sanitizedMessage,
           isServerMessage: false,
+          isEXMessage: false,
+          username: user.username,
+          hexcode: user.hexcode,
+        });
+      }
+    });
+
+    socket.on('ex-message', (message: string) => {
+      const user = users.get(socket.id);
+
+      const isExMessage = message.startsWith('/ex');
+      const trimmedMessage = message.replace('/ex', '').trim();
+      const isValidMessage = validateText(trimmedMessage);
+
+      if (isValidMessage && user && isExMessage) {
+        const sanitizedMessage = xss(trimmedMessage, {
+          whiteList: {},
+          stripIgnoreTag: true,
+          stripIgnoreTagBody: ['script'],
+        });
+
+        io.emit('ex-message', {
+          content: sanitizedMessage,
+          isServerMessage: false,
+          isEXMessage: true,
           username: user.username,
           hexcode: user.hexcode,
         });

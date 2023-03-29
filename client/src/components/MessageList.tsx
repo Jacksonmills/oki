@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Username from "./Username";
 import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
 import { useMessageContext } from "@/MessageContext";
+import { COLORS } from "@/constants";
+import GradientBorder from "./GradientBorder";
 
 export type MessageListProps = {
   className?: string;
@@ -10,6 +12,7 @@ export type MessageListProps = {
 
 const MessageList = ({ className }: MessageListProps) => {
   const { messages } = useMessageContext();
+  console.log(messages);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -54,15 +57,26 @@ const MessageList = ({ className }: MessageListProps) => {
     <Wrapper ref={wrapperRef} className={className}>
       <List>
         {messages.map((message, index) => {
-          return message.isServerMessage ? (
-            <ServerEventMessage type={message.type} key={index}>
-              <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
-            </ServerEventMessage>
-          ) : (
-            <Message key={index}>
-              <Username hexcode={message.hexcode}>{message.username}:</Username>
-              {message.content}
-            </Message>
+          return (
+            <>
+              {message.isServerMessage && (
+                <ServerEventMessage type={message.type} key={index}>
+                  <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
+                </ServerEventMessage>
+              )}
+              {message.isEXMessage && (
+                <EXMessage key={index}>
+                  <Username hexcode={message.hexcode}>{message.username}:</Username>
+                  {message.content}
+                </EXMessage>
+              )}
+              {!message.isServerMessage && !message.isEXMessage && (
+                <Message key={index}>
+                  <Username hexcode={message.hexcode}>{message.username}:</Username>
+                  {message.content}
+                </Message>
+              )}
+            </>
           );
         })}
       </List>
@@ -100,11 +114,33 @@ const Message = styled.li`
   max-width: 100vw;
 `;
 
-const ServerEventMessage = styled(Message) <{ type: "connected" | "disconnected", }>`
+const EXMessage = styled(Message)`
+  --border-color: ${COLORS.primary};
+  position: relative;
+  padding: 12px;
+  background: #333;
+  border-radius: .15rem;
+  margin: 6px 12px;
+
+  ::before {
+    --size: -2px;
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: var(--size);
+    left: var(--size);
+    right: var(--size);
+    bottom: var(--size);
+    background: linear-gradient(to right, ${COLORS.primary}, ${COLORS.secondary});
+    border-radius: 0.25rem;
+  }
+`;
+
+const ServerEventMessage = styled(Message) <{ type?: "connected" | "disconnected", }>`
   --border-color: ${props => props.type === "connected" ? "green" : "red"};
   padding: 12px;
   background: #333;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: .25rem;
   margin: 6px 12px;
 `;

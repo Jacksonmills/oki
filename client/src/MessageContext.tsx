@@ -23,8 +23,10 @@ export function MessageProvider({ children }: { children: React.ReactNode; }) {
 
   useEffect(() => {
     socket.on('message', addMessage);
+    socket.on('ex-message', addMessage);
     return () => {
       socket.off('message', addMessage);
+      socket.off('ex-message', addMessage);
     };
   }, [socket]);
 

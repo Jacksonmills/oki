@@ -148,9 +148,8 @@ const Bar = styled.div<{ progress: number; }>`
     position: absolute;
     z-index: 1;
     top: 0;
-    // half way through the progress bar
-    left: 50%;
-    width: 1px;
+    left: calc(50% - 1px);
+    width: 2px;
     height: 8px;
     background-color: black;
   }
