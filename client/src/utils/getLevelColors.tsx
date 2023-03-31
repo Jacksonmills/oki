@@ -1,4 +1,4 @@
-import { colorContrast } from '../utils/colorContrast';
+import { colorContrast } from './colorContrast';
 
 export type LevelColors = {
   background: string;
@@ -23,7 +23,7 @@ export function getLevelColors(level: number): LevelColors {
     case 2:
       return {
         background: '#f60b0b',
-        border: '#ffffff',
+        border: '#741919',
         text: colorContrast('#f60b0b'),
       };
     case 3:
@@ -35,19 +35,19 @@ export function getLevelColors(level: number): LevelColors {
     case 4:
       return {
         background: '#ee11ee',
-        border: '#ffffff',
+        border: '#802380',
         text: colorContrast('#ee11ee'),
       };
     case 5:
       return {
         background: '#ff8000',
-        border: '#ffffff',
+        border: '#80562c',
         text: colorContrast('#ff8000'),
       };
     case 6:
       return {
         background: '#0c45ef',
-        border: '#ffffff',
+        border: '#253d85',
         text: colorContrast('#0c45ef'),
       };
     case 7:
