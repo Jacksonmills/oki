@@ -25,8 +25,7 @@ const MessageInput: React.FC = ({ className, forwardRef }: { className?: string;
   }, []);
 
   const handleSubmit = (e: React.SyntheticEvent) => {
-    const splitInput = input.split(' ');
-    const xpGain = splitInput.length;
+    const xpGain = 1;
     e.preventDefault();
     if (input === '') return;
     if (input.startsWith('/ex ')) {

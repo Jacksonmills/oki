@@ -20,18 +20,27 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
-        if (user.level === MAX_LEVEL && user.xp === XP_PER_LEVEL * MAX_LEVEL) {
+        if (!user.hasOwnProperty('isLevelingUp')) {
+          user.isLevelingUp = false;
+        }
+        if (user.level === MAX_LEVEL) {
           return;
         }
         user.xp += xpToAdd;
-        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
-        const levelChangedAndCanLevelUp = newLevel > user.level && newLevel <= MAX_LEVEL;
+        const newLevel = Math.floor(user.xp / XP_PER_LEVEL);
+        const levelChangedAndCanLevelUp = newLevel > user.level && newLevel < MAX_LEVEL;
 
         socket.emit('update-xp', user.xp);
 
         if (levelChangedAndCanLevelUp) {
-          user.level = newLevel;
-          socket.emit('update-level', user.level);
+          if (!user.isLevelingUp) {
+            user.isLevelingUp = true;
+            setTimeout(() => {
+              user.level = newLevel;
+              socket.emit('update-level', user.level);
+              user.isLevelingUp = false;
+            }, 500);
+          }
         }
 
         const userIndex = userHistory.findIndex(u => u.id === socket.id);
@@ -39,16 +48,18 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           userHistory[userIndex].xp = user.xp;
           userHistory[userIndex].level = user.level;
         }
+        console.log('SERVER:', 'xp:', user.xp, 'level:', user.level);
       }
     });
 
     socket.on('remove-xp', (xpToRemove: number) => {
       const user = users.get(socket.id);
       if (user) {
-        user.xp -= xpToRemove;
-        const newLevel = Math.floor(user.xp / XP_PER_LEVEL) - 1;
-        const levelChangedAndCanLevelDown = newLevel >= 0 && newLevel < user.level;
+        const newXp = Math.max(user.xp - xpToRemove, 0);
+        const newLevel = Math.floor(newXp / XP_PER_LEVEL);
+        const levelChangedAndCanLevelDown = newLevel < user.level;
 
+        user.xp = newXp;
         socket.emit('update-xp', user.xp);
 
         if (levelChangedAndCanLevelDown) {
@@ -61,6 +72,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           userHistory[userIndex].xp = user.xp;
           userHistory[userIndex].level = user.level;
         }
+        console.log('REMOVE: user xp updated', user.xp, 'user level', user.level);
       }
     });
 
@@ -80,7 +92,8 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           status: 'online',
           lastSeen: new Date(),
           xp: 0,
-          level: 1
+          level: 0,
+          isLevelingUp: false,
         });
         userHistory.push({
           id: socket.id,
@@ -89,7 +102,8 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           status: 'online',
           lastSeen: new Date(),
           xp: 0,
-          level: 1
+          level: 0,
+          isLevelingUp: false,
         });
 
         io.emit('user-connected', {

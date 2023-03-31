@@ -12,12 +12,12 @@ function useLevelingSystem(initialXP = 0, initialLevel = 0) {
   const progress = isLevelingUp ? 100 : ((level === 6 && xp >= 100) || level === 7 ? 100 : baseProgress);
 
   const addXp = (xpToAdd: number) => {
-    if (level === MAX_LEVEL && xp === XP_PER_LEVEL * MAX_LEVEL) {
+    if (level === MAX_LEVEL) {
       return;
     }
     const newXp = xp + xpToAdd;
     const newLevel = Math.floor(newXp / XP_PER_LEVEL);
-    const levelChangedAndCanLevelUp = newLevel > level && newLevel <= MAX_LEVEL;
+    const levelChangedAndCanLevelUp = newLevel > level && newLevel < MAX_LEVEL;
 
     if (levelChangedAndCanLevelUp) {
       setIsLevelingUp(true);

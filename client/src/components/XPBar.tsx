@@ -4,18 +4,22 @@ import { useLevelingContext } from '../LevelingContext';
 import { LevelColors, getLevelColors } from '../utils/getLevelColors';
 
 const XPBar = () => {
-  const { level, progress, isLevelingUp } = useLevelingContext();
+  const { xp, level, progress, isLevelingUp } = useLevelingContext();
 
   const levelColors = useMemo(() => {
     return getLevelColors(level);
   }, [level]);
+
+  useEffect(() => {
+    console.log('CLIENT:', 'xp:', xp, 'level:', level, 'progress:', progress);
+  }, [xp, level, progress]);
 
   return (
     <Wrapper>
       <Crown levelColors={levelColors}>
         <Level>{level}</Level>
       </Crown>
-      <Bar progress={progress} isLevelingUp={isLevelingUp}>
+      <Bar progress={progress} level={level}>
         <Progress progress={progress} levelColors={levelColors} isLevelingUp={isLevelingUp} />
       </Bar>
     </Wrapper>
@@ -35,15 +39,15 @@ const Wrapper = styled.div`
 
 const Bar = styled.div<{
   progress: number;
-  isLevelingUp: boolean;
+  level: number;
 }>`
   position: relative;
   margin-left: 6px;
   width: 20vw;
   background-color: #000000;
   border-radius: 50px;
-  ${({ progress, isLevelingUp }) => {
-    if (progress > 90 || isLevelingUp) {
+  ${({ progress, level }) => {
+    if (progress > 90 || level === 7) {
       return css`
         animation: pulse 1s infinite;
       `;
@@ -75,7 +79,11 @@ const Bar = styled.div<{
   }
 `;
 
-const Progress = styled.div<{ progress: number; levelColors: LevelColors; isLevelingUp: boolean; }>`
+const Progress = styled.div<{
+  progress: number;
+  levelColors: LevelColors;
+  isLevelingUp: boolean;
+}>`
   background: ${({ levelColors }) => levelColors.background};
   background-repeat: no-repeat;
   border: 1px solid ${({ levelColors }) => levelColors.border};

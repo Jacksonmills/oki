@@ -5,6 +5,7 @@ export interface UserObj {
   lastSeen: Date;
   xp: number;
   level: number;
+  isLevelingUp: boolean;
   disconnectTime?: Date;
 }
 
