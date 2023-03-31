@@ -20,17 +20,18 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
-        if (!user.hasOwnProperty('isLevelingUp')) {
-          user.isLevelingUp = false;
-        }
         if (user.level === MAX_LEVEL) {
           return;
         }
         user.xp += xpToAdd;
         const newLevel = Math.floor(user.xp / XP_PER_LEVEL);
-        const levelChangedAndCanLevelUp = newLevel > user.level && newLevel < MAX_LEVEL;
+        const levelChangedAndCanLevelUp = newLevel > user.level && newLevel <= MAX_LEVEL;
 
-        socket.emit('update-xp', user.xp);
+        if (newLevel === MAX_LEVEL) {
+          user.xp = XP_PER_LEVEL * MAX_LEVEL;
+        } else {
+          socket.emit('update-xp', user.xp);
+        }
 
         if (levelChangedAndCanLevelUp) {
           if (!user.isLevelingUp) {
