@@ -5,6 +5,7 @@ import XPBar from './XPBar';
 import { socket } from '../utils/socket';
 import { useLevelingContext } from '../LevelingContext';
 import useLevelingSystem from '../hooks/use-leveling-system';
+import { Send } from 'react-feather';
 
 const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
 export const MESSAGE_INPUT_HEIGHT = '86px';
@@ -60,7 +61,7 @@ const MessageInput: React.FC = ({ className, forwardRef }: { className?: string;
         </EmojiButton>
         <XPBar />
         <TextInput
-          buttonText='Send'
+          buttonContent={<Send />}
           value={input}
           onChange={setInput}
           onClick={handleSubmit}

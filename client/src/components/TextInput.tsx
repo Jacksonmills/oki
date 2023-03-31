@@ -1,8 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+import UnstyledButton from './UnstyledButton';
+import { COLORS } from '../constants';
+import { getLevelColors } from '../utils/getLevelColors';
+import { useLevelingContext } from '../LevelingContext';
 
 type TextInputProps = {
-  buttonText: string,
+  buttonContent: string | React.ReactNode,
   value: string;
   onChange: (value: string) => void;
   onClick?: (event: React.SyntheticEvent) => void;
@@ -11,13 +15,19 @@ type TextInputProps = {
   forwardRef?: React.Ref<HTMLInputElement>;
 };
 
-const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onClick, placeholder, disabled, forwardRef }) => {
+const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, onClick, placeholder, disabled, forwardRef }) => {
+  const { level } = useLevelingContext();
+  const contentIsString = typeof buttonContent === 'string';
+
+  const { background } = getLevelColors(level);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
 
   // draw with me style mini inline chat game
   // const [drawWithMe, setDrawWithMe] = useState<string[]>([]);
+
 
 
   return (
@@ -30,7 +40,11 @@ const TextInput: React.FC<TextInputProps> = ({ buttonText, value, onChange, onCl
         placeholder={placeholder}
         ref={forwardRef ? forwardRef : null}
       />
-      <Button type="button" onClick={onClick} disabled={disabled}>{buttonText}</Button>
+      {contentIsString ? (
+        <Button type="button" onClick={onClick} disabled={disabled}>{buttonContent}</Button>
+      ) : (
+        <StyledUnstyledButton foregroundColor={background} type="button" onClick={onClick} disabled={disabled}>{buttonContent}</StyledUnstyledButton>
+      )}
     </Wrapper>
   );
 };
@@ -52,7 +66,29 @@ const Input = styled.input`
   }
 `;
 
+const StyledUnstyledButton = styled(UnstyledButton) <{
+  foregroundColor: string;
+}>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5em;
+  background-color: #17171c;
+  color: ${({ foregroundColor }) => foregroundColor};
+  height: fit-content;
+  align-self: center;
+
+  svg {
+    display: inline-flex;
+    width: 1.6em;
+    height: 1.6em;
+  }
+`;
+
 const Button = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
   border-top-left-radius: 1px;
   border-bottom-left-radius: 1px;

@@ -25,7 +25,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors, err
       <Form onSubmit={handleSubmit}>
         <Heading>Welcome! Enjoy the fun! 😄</Heading>
         <TextInput
-          buttonText='Join'
+          buttonContent='Join'
           value={username}
           onChange={setUsername}
           onClick={handleSubmit}

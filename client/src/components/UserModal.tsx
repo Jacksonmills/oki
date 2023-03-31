@@ -57,6 +57,8 @@ const Title = styled.h2`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  font-size: ${26 / 16}rem;
 `;
 
 const UserList = styled.ul`
@@ -98,8 +100,8 @@ const CloseButton = styled.button`
   margin-right: 6px;
   aspect-ratio: 1 / 1;
   padding: 0.25rem;
-  width: 1em;
-  height: 1em;
+  width: 1.2em;
+  height: 1.2em;
 `;
 
 export default UserModal;
