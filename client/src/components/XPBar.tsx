@@ -10,10 +10,6 @@ const XPBar = () => {
     return getLevelColors(level);
   }, [level]);
 
-  useEffect(() => {
-    console.log('CLIENT:', 'xp:', xp, 'level:', level, 'progress:', progress);
-  }, [xp, level, progress]);
-
   return (
     <Wrapper>
       <Crown levelColors={levelColors}>

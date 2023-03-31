@@ -12,11 +12,13 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
   const disconnectTimeouts = new Map<string, NodeJS.Timeout>();
 
   const removeUserFromHistory = (userId: string) => {
-    console.log('removing user from history', userId);
+    const user = userHistory.find(user => user.id === userId);
+    console.log('removing user from history', user?.username);
     userHistory = userHistory.filter(user => user.id !== userId);
   };
 
   io.on('connection', (socket) => {
+    console.log(`[${new Date().toISOString()}] 🟡 connecting...`);
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
@@ -49,7 +51,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           userHistory[userIndex].xp = user.xp;
           userHistory[userIndex].level = user.level;
         }
-        console.log('SERVER:', 'xp:', user.xp, 'level:', user.level);
       }
     });
 
@@ -73,7 +74,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           userHistory[userIndex].xp = user.xp;
           userHistory[userIndex].level = user.level;
         }
-        console.log('REMOVE: user xp updated', user.xp, 'user level', user.level);
       }
     });
 
@@ -113,13 +113,12 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           username: username,
           hexcode: hexcode
         });
+        console.log(`[${new Date().toISOString()}] 🟢 ${username} connected!`);
 
         io.emit('user-history', userHistory);
         socket.emit('live-users-count', users.size);
       }
     });
-
-    console.log(`[${new Date().toISOString()}] a user connected`);
 
     socket.on('get-user-history', () => {
       const userList = Array.from(users.values());
@@ -174,8 +173,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
 
     socket.on('disconnect', () => {
       const user = users.get(socket.id);
-      console.log(`[${new Date().toISOString()}] a user disconnected`);
-
       if (user) {
         const userIndex = userHistory.findIndex(u => u.id === socket.id);
         if (userIndex !== -1) {
@@ -189,6 +186,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           username: user.username,
           hexcode: user.hexcode
         });
+        console.log(`[${new Date().toISOString()}] 🔴 ${user.username} disconnected.`);
         user.status = 'offline';
         users.delete(socket.id);
 

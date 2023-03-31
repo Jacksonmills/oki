@@ -17,7 +17,6 @@ const App = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleModalSubmit = (username: string, hexcode: string) => {
-    console.log('submitting modal', username, hexcode);
     socket.emit('set-username', { username, hexcode });
     socket.once('username-set', () => {
       setShowModal(false);
