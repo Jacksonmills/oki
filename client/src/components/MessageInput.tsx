@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 import TextInput from './TextInput';
 import XPBar from './XPBar';
@@ -15,63 +15,72 @@ const getRandomEmoji = () => {
   return emojis[randomIndex];
 };
 
-const MessageInput: React.FC = ({ className, forwardRef }: { className?: string; forwardRef?: React.Ref<HTMLInputElement>; }) => {
-  const { xp, level, addXp, removeXp } = useLevelingContext();
-  const [input, setInput] = useState('');
-  const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
-  const isNoob = (cost: number) => xp < cost && level === 0;
+const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, {
+  className?: string;
+}> = (
+  { className },
+  forwardRef,
+) => {
+    const { xp, level, addXp, removeXp } = useLevelingContext();
+    const [input, setInput] = useState('');
+    const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
+    const isNoob = (cost: number) => xp < cost && level === 0;
 
-  useEffect(() => {
-    setNextEmoji(getRandomEmoji());
-  }, []);
+    const inputRef = useRef<HTMLInputElement>(null);
+    useImperativeHandle(forwardRef, () => inputRef.current as HTMLInputElement, []);
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    const xpGain = 1;
-    e.preventDefault();
-    if (input === '') return;
-    if (input.startsWith('/ex ')) {
-      const xpCost = 5;
+    useEffect(() => {
+      setNextEmoji(getRandomEmoji());
+    }, []);
+
+    const handleSubmit = (e: React.SyntheticEvent) => {
+      const xpGain = 1;
+      e.preventDefault();
+      if (input === '') return;
+      if (input.startsWith('/ex ')) {
+        const xpCost = 5;
+        if (isNoob(xpCost)) return;
+        socket.emit('ex-message', input);
+        setInput('');
+        socket.emit('remove-xp', xpCost);
+        removeXp(xpCost);
+      } else {
+        socket.emit('message', input);
+        setInput('');
+        socket.emit('add-xp', xpGain);
+        addXp(xpGain);
+      }
+      inputRef.current?.focus();
+    };
+
+    const handleEmojiClick = () => {
+      const xpCost = 1;
       if (isNoob(xpCost)) return;
-      socket.emit('ex-message', input);
-      setInput('');
+      socket.emit('message', nextEmoji);
       socket.emit('remove-xp', xpCost);
       removeXp(xpCost);
-    } else {
-      socket.emit('message', input);
-      setInput('');
-      socket.emit('add-xp', xpGain);
-      addXp(xpGain);
-    }
-  };
+      setNextEmoji(getRandomEmoji());
+      inputRef.current?.focus();
+    };
 
-  const handleEmojiClick = () => {
-    const xpCost = 1;
-    if (isNoob(xpCost)) return;
-    socket.emit('message', nextEmoji);
-    socket.emit('remove-xp', xpCost);
-    removeXp(xpCost);
-    setNextEmoji(getRandomEmoji());
+    return (
+      <Wrapper className={className}>
+        <Form onSubmit={handleSubmit}>
+          <EmojiButton type="button" onClick={handleEmojiClick} disabled={isNoob(1)}>
+            {nextEmoji}
+          </EmojiButton>
+          <XPBar />
+          <TextInput
+            buttonContent={<Send />}
+            value={input}
+            onChange={setInput}
+            placeholder='Type a message...'
+            forwardRef={forwardRef ? forwardRef : inputRef}
+          />
+        </Form>
+      </Wrapper>
+    );
   };
-
-  return (
-    <Wrapper className={className}>
-      <Form onSubmit={handleSubmit}>
-        <EmojiButton type="button" onClick={handleEmojiClick} disabled={isNoob(1)}>
-          {nextEmoji}
-        </EmojiButton>
-        <XPBar />
-        <TextInput
-          buttonContent={<Send />}
-          value={input}
-          onChange={setInput}
-          onClick={handleSubmit}
-          placeholder='Type a message...'
-          forwardRef={forwardRef ? forwardRef : null}
-        />
-      </Form>
-    </Wrapper>
-  );
-};
 
 const Wrapper = styled.div`
   width: 100%;
@@ -101,4 +110,4 @@ const EmojiButton = styled.button`
   }
 `;
 
-export default MessageInput;
+export default React.forwardRef(MessageInput);

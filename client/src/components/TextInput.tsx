@@ -12,7 +12,7 @@ type TextInputProps = {
   onClick?: (event: React.SyntheticEvent) => void;
   placeholder?: string;
   disabled?: boolean;
-  forwardRef?: React.Ref<HTMLInputElement>;
+  forwardRef?: React.ForwardedRef<HTMLInputElement>;
 };
 
 const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, onClick, placeholder, disabled, forwardRef }) => {
@@ -38,12 +38,12 @@ const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, o
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        ref={forwardRef ? forwardRef : null}
+        ref={forwardRef}
       />
       {contentIsString ? (
-        <Button type="button" onClick={onClick} disabled={disabled}>{buttonContent}</Button>
+        <Button type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</Button>
       ) : (
-        <StyledUnstyledButton foregroundColor={background} type="button" onClick={onClick} disabled={disabled}>{buttonContent}</StyledUnstyledButton>
+        <StyledUnstyledButton foregroundColor={background} type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</StyledUnstyledButton>
       )}
     </Wrapper>
   );
