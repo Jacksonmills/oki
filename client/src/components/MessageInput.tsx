@@ -75,7 +75,7 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, {
             value={input}
             onChange={setInput}
             placeholder='Type a message...'
-            forwardRef={forwardRef ? forwardRef : inputRef}
+            forwardRef={inputRef}
           />
         </Form>
       </Wrapper>

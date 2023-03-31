@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import UnstyledButton from './UnstyledButton';
 import { COLORS } from '../constants';
@@ -12,14 +12,22 @@ type TextInputProps = {
   onClick?: (event: React.SyntheticEvent) => void;
   placeholder?: string;
   disabled?: boolean;
-  forwardRef?: React.ForwardedRef<HTMLInputElement>;
+  forwardRef?: React.Ref<HTMLInputElement>;
 };
 
-const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, onClick, placeholder, disabled, forwardRef }) => {
+const TextInput: React.FC<TextInputProps> = ({
+  buttonContent,
+  value,
+  onChange,
+  onClick,
+  placeholder,
+  disabled,
+  forwardRef
+}) => {
   const { level } = useLevelingContext();
   const contentIsString = typeof buttonContent === 'string';
 
-  const { background } = getLevelColors(level);
+  const { text, background } = getLevelColors(level);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -27,8 +35,6 @@ const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, o
 
   // draw with me style mini inline chat game
   // const [drawWithMe, setDrawWithMe] = useState<string[]>([]);
-
-
 
   return (
     <Wrapper>
@@ -43,7 +49,15 @@ const TextInput: React.FC<TextInputProps> = ({ buttonContent, value, onChange, o
       {contentIsString ? (
         <Button type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</Button>
       ) : (
-        <StyledUnstyledButton foregroundColor={background} type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</StyledUnstyledButton>
+        <StyledUnstyledButton
+          foregroundColor={text}
+          backgroundColor={background}
+          type="submit"
+          onClick={onClick}
+          disabled={disabled}
+        >
+          {buttonContent}
+        </StyledUnstyledButton>
       )}
     </Wrapper>
   );
@@ -68,12 +82,14 @@ const Input = styled.input`
 
 const StyledUnstyledButton = styled(UnstyledButton) <{
   foregroundColor: string;
+  backgroundColor: string;
 }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.5em;
-  background-color: #17171c;
+  margin-right: 0.25rem;
+  background-color: ${({ backgroundColor }) => backgroundColor};
   color: ${({ foregroundColor }) => foregroundColor};
   height: fit-content;
   align-self: center;

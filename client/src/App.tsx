@@ -55,7 +55,7 @@ const App = () => {
         </HeaderContent>
       </Header>
       <StyledMessageList />
-      <StyledMessageInput forwardRef={inputRef} />
+      <StyledMessageInput ref={inputRef} />
 
       {showModal && (
         <UsernameModal
@@ -95,7 +95,9 @@ const Header = styled.header`
 `;
 
 const StyledMessageList = styled(MessageList)``;
-const StyledMessageInput = styled(MessageInput) <{ forwardRef: React.Ref<HTMLInputElement>; }>``;
+const StyledMessageInput = styled(MessageInput) <{
+  ref: React.RefObject<HTMLInputElement>;
+}>``;
 
 const Wrapper = styled.div`
   display: flex;
