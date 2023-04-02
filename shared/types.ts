@@ -7,6 +7,7 @@ export interface UserObj {
   level: number;
   isLevelingUp: boolean;
   disconnectTime?: Date;
+  roomId?: string;
 }
 
 export interface UserHistory extends UserObj {
