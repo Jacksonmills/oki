@@ -35,8 +35,8 @@ export const UserModal = ({ onClose }: UserModalProps) => {
           ))}
         </UserList>
       </Dropdown>
-      {onlineUsersArray.length > 0 && (
-        <Dropdown title={`Offline Users (${onlineUsersArray.length})`}>
+      {offlineUsersArray.length > 0 && (
+        <Dropdown title={`Offline Users (${offlineUsersArray.length})`}>
           <UserList>
             {offlineUsersArray.map((user, index) => (
               <User key={index} status={user.status}>
