@@ -3,15 +3,22 @@ import { UserObj, UserHistory } from "../shared/types";
 import xss from "xss";
 import validateText from "./validateText";
 import { MAX_LEVEL, XP_PER_LEVEL } from "../shared/levelingSystem";
-import { execPath } from "process";
 
-export function createSocketController(io: Server, users: Map<string, UserObj>, userHistory: UserHistory[]) {
+export function createSocketController(io: Server, users: Map<string, UserObj>, userHistory: Map<string, UserHistory>) {
   const disconnectTimeouts = new Map<string, NodeJS.Timeout>();
 
+  const updateUserHistoryXPAndLevel = (userId: string, newXp: number, newLevel: number) => {
+    const userHistoryEntry = userHistory.get(userId);
+    if (userHistoryEntry) {
+      userHistoryEntry.xp = newXp;
+      userHistoryEntry.level = newLevel;
+    }
+  };
+
   const removeUserFromHistory = (userId: string) => {
-    const user = userHistory.find(user => user.id === userId);
-    console.log('removing user from history', user?.username);
-    userHistory = userHistory.filter(user => user.id !== userId);
+    const user = userHistory.get(userId);
+    console.log('removing user from history', user?.username, userId);
+    userHistory.delete(userId);
   };
 
   io.on('connection', (socket) => {
@@ -20,18 +27,18 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     socket.on('join-room', (roomId: string) => {
       socket.join(roomId);
       socket.to(roomId).emit('user-joined', socket.id);
-      const user = users.get(socket.id);
-      if (user) {
-        user.roomId = roomId;
+      const userHistoryEntry = userHistory.get(socket.id);
+      if (userHistoryEntry) {
+        userHistoryEntry.roomId = roomId;
       }
     });
 
     socket.on('leave-room', (roomId: string) => {
       socket.leave(roomId);
       socket.to(roomId).emit('user-left', socket.id);
-      const user = users.get(socket.id);
-      if (user) {
-        delete user.roomId;
+      const userHistoryEntry = userHistory.get(socket.id);
+      if (userHistoryEntry) {
+        delete userHistoryEntry.roomId;
       }
     });
 
@@ -62,11 +69,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           }
         }
 
-        const userIndex = userHistory.findIndex(u => u.id === socket.id);
-        if (userIndex !== -1) {
-          userHistory[userIndex].xp = user.xp;
-          userHistory[userIndex].level = user.level;
-        }
+        updateUserHistoryXPAndLevel(socket.id, user.xp, user.level);
       }
     });
 
@@ -85,11 +88,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           socket.emit('update-level', user.level);
         }
 
-        const userIndex = userHistory.findIndex(u => u.id === socket.id);
-        if (userIndex !== -1) {
-          userHistory[userIndex].xp = user.xp;
-          userHistory[userIndex].level = user.level;
-        }
+        updateUserHistoryXPAndLevel(socket.id, user.xp, user.level);
       }
     });
 
@@ -100,6 +99,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         socket.emit('username-set');
 
         const newUser: UserObj = {
+          id: socket.id,
           username,
           hexcode,
           status: 'online',
@@ -110,7 +110,7 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         };
 
         users.set(socket.id, newUser);
-        userHistory.push({
+        userHistory.set(socket.id, {
           id: socket.id,
           username,
           hexcode,
@@ -119,10 +119,10 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           xp: 0,
           level: 0,
           isLevelingUp: false,
-          roomId: newUser.roomId || undefined,
+          roomId: undefined,
         });
 
-        const user = users.get(socket.id);
+        const userHistoryEntry = userHistory.get(socket.id);
         const userConnectedPayload = {
           type: 'connected',
           message: `has connected! 👋`,
@@ -130,14 +130,14 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           hexcode: hexcode
         };
 
-        if (user && user.roomId) {
-          socket.to(user.roomId).emit('user-connected', userConnectedPayload);
+        if (userHistoryEntry && userHistoryEntry.roomId) {
+          socket.to(userHistoryEntry.roomId).emit('user-connected', userConnectedPayload);
         } else {
           io.emit('user-connected', userConnectedPayload);
         }
         console.log(`[${new Date().toISOString()}] 🟢 ${username} connected!`);
-
-        io.emit('user-history', userHistory);
+        const userHistoryObj = Object.fromEntries(userHistory.entries());
+        io.emit('user-history', userHistoryObj);
         socket.emit('live-users-count', users.size);
       }
     });
@@ -201,62 +201,56 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
     });
 
     socket.on('disconnect', () => {
-      const user = users.get(socket.id);
-      if (user) {
-        const userIndex = userHistory.findIndex(u => u.id === socket.id);
-        if (userIndex !== -1) {
-          userHistory[userIndex].status = 'offline';
-          userHistory[userIndex].disconnectTime = new Date();
-          userHistory[userIndex].roomId = user.roomId || undefined;
-        }
+      const userHistoryEntry = userHistory.get(socket.id);
+      if (userHistoryEntry) {
+        userHistoryEntry.status = 'offline';
+        userHistoryEntry.disconnectTime = new Date();
 
-        if (user.roomId) {
-          socket.to(user.roomId).emit('user-disconnected', {
-            type: 'disconnected',
-            message: `has disconnected... 🔴`,
-            username: user.username,
-            hexcode: user.hexcode
-          });
+        const userDisconnectedPayload = {
+          type: 'disconnected',
+          message: `has disconnected... 🔴`,
+          username: userHistoryEntry.username,
+          hexcode: userHistoryEntry.hexcode
+        };
+
+        if (userHistoryEntry.roomId) {
+          socket.to(userHistoryEntry.roomId).emit('user-disconnected', userDisconnectedPayload);
         } else {
-          socket.broadcast.emit('user-disconnected', {
-            type: 'disconnected',
-            message: `has disconnected... 🔴`,
-            username: user.username,
-            hexcode: user.hexcode
-          });
+          socket.broadcast.emit('user-disconnected', userDisconnectedPayload);
         }
-        console.log(`[${new Date().toISOString()}] 🔴 ${user.username} disconnected.`);
-        user.status = 'offline';
+        console.log(`[${new Date().toISOString()}] 🔴 ${userHistoryEntry.username} disconnected.`);
         users.delete(socket.id);
 
         const timeout = setTimeout(() => {
           removeUserFromHistory(socket.id);
           disconnectTimeouts.delete(socket.id);
-          io.emit('user-history', userHistory);
+          const userHistoryObj = Object.fromEntries(userHistory.entries());
+          io.emit('user-history', userHistoryObj);
         }, 60 * 60 * 1000);
 
         disconnectTimeouts.set(socket.id, timeout);
       }
-      io.emit('user-history', userHistory);
+
+      const userHistoryObj = Object.fromEntries(userHistory.entries());
+      io.emit('user-history', userHistoryObj);
       socket.emit('live-users-count', users.size);
     });
 
     socket.on('get-live-users-count', (roomId?: string) => {
-      if (roomId) {
-        const roomUserList = Array.from(users.values()).filter(user => user.roomId === roomId);
-        socket.emit('live-users-count', roomUserList.length);
-      } else {
-        socket.emit('live-users-count', users.size);
-      }
+      const roomUserList = roomId
+        ? Array.from(userHistory.values()).filter(user => user.roomId === roomId)
+        : Array.from(userHistory.values());
+      socket.emit('live-users-count', roomUserList.length);
     });
 
     socket.on('get-user-history', (roomId?: string) => {
       if (roomId) {
-        const roomUserList = Array.from(users.values()).filter(user => user.roomId === roomId);
-        socket.emit('user-history', roomUserList);
+        const roomUsersMap = new Map([...userHistory.entries()].filter(([userId, user]) => user.roomId === roomId));
+        const roomUserHistoryObj = Object.fromEntries(roomUsersMap.entries());
+        socket.emit('user-history', roomUserHistoryObj);
       } else {
-        const userList = Array.from(users.values());
-        socket.emit('user-history', userList);
+        const userHistoryObj = Object.fromEntries(userHistory.entries());
+        socket.emit('user-history', userHistoryObj);
       }
     });
   });

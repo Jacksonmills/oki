@@ -6,11 +6,10 @@ import ColorSwatchPicker from './ColorSwatchPicker';
 
 type UsernameModalProps = {
   onSubmit: (username: string, hexcode: string) => void,
-  userColors: string[],
   errorMessage: string | null;
 };
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors, errorMessage }) => {
+const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, errorMessage }) => {
   const [username, setUsername] = useState('');
   const [hexcode, setHexcode] = useState('#ff0006');
 
@@ -34,7 +33,6 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, userColors, err
         {errorMessage && <Error>{errorMessage}</Error>}
         <ColorHeading>Pick a color!</ColorHeading>
         <ColorSwatchPicker
-          userColors={userColors}
           onSelect={setHexcode}
           currentHexcode={hexcode}
         />

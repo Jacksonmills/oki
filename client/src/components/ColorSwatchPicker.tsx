@@ -1,10 +1,9 @@
-// ColorSwatchPicker.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Edit, Edit2, Edit3 } from 'react-feather';
 import styled from 'styled-components';
+import { useUserContext } from '../UserContext';
 
 type ColorSwatchPickerProps = {
-  userColors: string[];
   onSelect: (color: string) => void;
   currentHexcode: string;
 };
@@ -22,13 +21,19 @@ const getContrastColor = (hexColor: string) => {
 };
 
 const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
-  userColors,
   onSelect,
   currentHexcode
 }) => {
   const [colors, setColors] = useState<string[]>([]);
   const colorInputRef = useRef<HTMLInputElement>(null);
   const initialRender = useRef(true);
+  const { userHistory } = useUserContext();
+
+  const getOnlineUserColors = (): string[] => {
+    return Array.from(userHistory.values()).map((user) => user.hexcode);
+  };
+
+  const userColors = getOnlineUserColors();
 
   useEffect(() => {
     if (initialRender.current) {

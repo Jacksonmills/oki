@@ -9,7 +9,6 @@ import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
 
 const App = () => {
-  const { userCount, userHistory } = useUserContext();
   const [showModal, setShowModal] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,12 +23,6 @@ const App = () => {
     socket.once('username-invalid', () => {
       setErrorMessage('Invalid username. Please choose a different username.');
     });
-  };
-
-  const getOnlineUserColors = () => {
-    return userHistory
-      .filter((user) => user.status === 'online')
-      .map((user) => user.hexcode);
   };
 
   useEffect(() => {
@@ -47,8 +40,6 @@ const App = () => {
             <LogoText>OKI</LogoText>
           </LogoWrapper>
           <LiveUsers
-            count={userCount}
-            userHistory={userHistory}
             showUserModal={showUserModal}
             onToggleModal={() => setShowUserModal(!showUserModal)}
           />
@@ -60,7 +51,6 @@ const App = () => {
       {showModal && (
         <UsernameModal
           onSubmit={handleModalSubmit}
-          userColors={getOnlineUserColors()}
           errorMessage={errorMessage}
         />
       )}

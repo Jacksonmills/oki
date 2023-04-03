@@ -12,6 +12,8 @@ type UserModalProps = {
 
 export const UserModal = ({ onClose }: UserModalProps) => {
   const { onlineUsers, offlineUsers } = useUserContext();
+  const onlineUsersArray = Array.from(onlineUsers.values());
+  const offlineUsersArray = Array.from(offlineUsers.values());
 
   return (
     <Modal onClose={onClose}>
@@ -21,9 +23,9 @@ export const UserModal = ({ onClose }: UserModalProps) => {
           <X />
         </CloseButton>
       </Title>
-      <Dropdown title={`Online Users (${onlineUsers.length})`} defaultOpen>
+      <Dropdown title={`Online Users (${onlineUsersArray.length})`} defaultOpen>
         <UserList>
-          {onlineUsers.map((user, index) => (
+          {onlineUsersArray.map((user, index) => (
             <User key={index} status={user.status}>
               <Username hexcode={user.hexcode}>{user.username}</Username>
               <Status>
@@ -33,10 +35,10 @@ export const UserModal = ({ onClose }: UserModalProps) => {
           ))}
         </UserList>
       </Dropdown>
-      {offlineUsers.length > 0 && (
-        <Dropdown title={`Offline Users (${offlineUsers.length})`}>
+      {onlineUsersArray.length > 0 && (
+        <Dropdown title={`Offline Users (${onlineUsersArray.length})`}>
           <UserList>
-            {offlineUsers.map((user, index) => (
+            {offlineUsersArray.map((user, index) => (
               <User key={index} status={user.status}>
                 <Username hexcode={user.hexcode}>{user.username}</Username>
                 <Status>

@@ -5,17 +5,17 @@ import { UserHistory, UserObj } from "./types";
 import { useLevelingContext } from "./LevelingContext";
 
 interface UserContextState {
-  onlineUsers: UserObj[];
-  offlineUsers: UserObj[];
+  onlineUsers: Map<string, UserObj>;
+  offlineUsers: Map<string, UserHistory>;
   userCount: number;
-  userHistory: UserHistory[];
+  userHistory: Map<string, UserHistory>;
 }
 
 const UserContext = createContext<UserContextState>({
-  onlineUsers: [],
-  offlineUsers: [],
+  onlineUsers: new Map(),
+  offlineUsers: new Map(),
   userCount: 0,
-  userHistory: []
+  userHistory: new Map(),
 });
 
 export function useUserContext() {
@@ -24,13 +24,22 @@ export function useUserContext() {
 
 export function UserProvider({ children }: { children: React.ReactNode; }) {
   const { addMessage } = useMessageContext();
-  const [onlineUsers, setOnlineUsers] = useState<UserObj[]>([]);
-  const [offlineUsers, setOfflineUsers] = useState<UserObj[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<Map<string, UserObj>>(new Map());
+  const [offlineUsers, setOfflineUsers] = useState<Map<string, UserHistory>>(new Map());
   const [userCount, setUserCount] = useState(0);
-  const [userHistory, setUserHistory] = useState<UserHistory[]>([]);
+  const [userHistory, setUserHistory] = useState<Map<string, UserHistory>>(new Map());
 
   useEffect(() => {
-    const handleUserConnectionEvent = (eventType: 'connected' | 'disconnected', data: { message: string, username: string, hexcode: string; }) => {
+    const handleUserConnectionEvent = (
+      eventType: 'connected' | 'disconnected',
+      data: {
+        message: string,
+        username: string,
+        hexcode: string;
+        xp?: number;
+        level?: number;
+      }
+    ) => {
       const now = new Date();
       addMessage({
         content: data.message,
@@ -41,12 +50,18 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
         hexcode: data.hexcode
       });
       setUserHistory((prevUserHistory) => {
-        return prevUserHistory.map((user) => {
-          if (user.username === data.username) {
-            return { ...user, status: eventType === 'connected' ? 'online' : 'offline', lastSeen: now };
-          }
-          return user;
-        });
+        const updatedUserHistory = new Map(prevUserHistory);
+        const user = updatedUserHistory.get(data.username);
+        if (user) {
+          updatedUserHistory.set(data.username, {
+            ...user,
+            status: eventType === "connected" ? "online" : "offline",
+            lastSeen: now,
+            xp: data.xp !== undefined ? data.xp : user.xp,
+            level: data.level !== undefined ? data.level : user.level,
+          });
+        }
+        return updatedUserHistory;
       });
       socket.emit('get-live-users-count');
     };
@@ -59,21 +74,36 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
       handleUserConnectionEvent('disconnected', data);
     };
 
-    const handleUserHistory = (userHistory: UserHistory[]) => {
-      const now = new Date();
-      const updatedUserHistory = userHistory.map(user => ({
-        ...user,
-        lastSeen: user.lastSeen ? new Date(user.lastSeen) : now,
-        disconnectTime: user.disconnectTime ? new Date(user.disconnectTime) : undefined
-      }));
+    const handleUserHistory = (userHistoryObj: Record<string, UserHistory>) => {
+      const userHistory = new Map<string, UserHistory>(
+        Object.entries(userHistoryObj).map(([key, value]) => [
+          key,
+          {
+            ...value,
+            lastSeen: new Date(value.lastSeen),
+            disconnectTime: value.disconnectTime ? new Date(value.disconnectTime) : undefined
+          }
+        ])
+      );
+
+      const updatedUserHistory = new Map<string, UserHistory>(userHistory);
+
+      const online = new Map<string, UserObj>();
+      const offline = new Map<string, UserObj>();
+
+      for (const [username, user] of updatedUserHistory.entries()) {
+        if (user.status === "online") {
+          online.set(username, user);
+        } else {
+          offline.set(username, user);
+        }
+      };
+
       setUserHistory(updatedUserHistory);
-
-      const online = updatedUserHistory.filter(user => user.status === "online");
-      const offline = updatedUserHistory.filter(user => user.status === "offline");
-
       setOnlineUsers(online);
       setOfflineUsers(offline);
     };
+
 
     socket.emit('get-live-users-count');
 

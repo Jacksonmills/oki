@@ -1,4 +1,5 @@
 export interface UserObj {
+  id: string;
   username: string;
   hexcode: string;
   status: 'online' | 'offline';
@@ -6,12 +7,11 @@ export interface UserObj {
   xp: number;
   level: number;
   isLevelingUp: boolean;
-  disconnectTime?: Date;
-  roomId?: string;
 }
 
 export interface UserHistory extends UserObj {
-  id: string;
+  disconnectTime?: Date;
+  roomId?: string;
 }
 
 export type MessageObj = {

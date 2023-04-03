@@ -9,14 +9,14 @@ const app = express();
 export const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' ? 'https://oki.herokuapp.com/' : '*',
+    origin: process.env.NODE_ENV === 'production' ? 'https://oki-chat.herokuapp.com/' : '*',
   },
 });
 
 const PORT = process.env.PORT || 3001;
 
 const users = new Map<string, UserObj>();
-const userHistory: UserHistory[] = [];
+const userHistory = new Map<string, UserHistory>();
 
 app.use(express.static(path.join(__dirname, '../../client/build')));
 app.get('*', (req, res) => {

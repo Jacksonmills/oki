@@ -3,13 +3,10 @@ import { User } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
 import { useUserContext } from '../UserContext';
-import { UserObj } from '../types';
 
 type LiveUsersProps = {
-  count: number;
-  userHistory: UserObj[];
-  onToggleModal: () => void;
   showUserModal: boolean;
+  onToggleModal: () => void;
 };
 
 const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
