@@ -35,12 +35,13 @@ const MessageList = ({ className }: MessageListProps) => {
   };
 
   const scrollToBottom = () => {
-    setUserScrolled(false);
     setTimeout(() => {
       if (wrapperRef.current) {
         wrapperRef.current.scrollTo(0, wrapperRef.current.scrollHeight);
       }
     }, 50);
+
+    setUserScrolled(false);
   };
 
   useEffect(() => {
@@ -60,12 +61,10 @@ const MessageList = ({ className }: MessageListProps) => {
   }, []);
 
   useEffect(() => {
-    if (!userScrolled) {
-      scrollToBottom();
-    } else {
-      if (document.visibilityState === "hidden" && messages.length > 1) {
-        setHasNewMessages(true);
-      }
+    if (document.visibilityState === "hidden" && messages.length > 1) {
+      setHasNewMessages(true);
+    }
+    if (document.visibilityState === "visible" || !userScrolled) {
       scrollToBottom();
     }
   }, [messages]);
