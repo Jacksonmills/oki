@@ -4,7 +4,7 @@ import Username from "./Username";
 import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
 import { useMessageContext } from "../MessageContext";
 import { COLORS } from "../constants";
-import GradientBorder from "./GradientBorder";
+import FaviconUpdater from "./FaviconUpdater";
 
 export type MessageListProps = {
   className?: string;
@@ -14,7 +14,15 @@ const MessageList = ({ className }: MessageListProps) => {
   const { messages } = useMessageContext();
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
+  const [hasNewMessages, setHasNewMessages] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === "visible") {
+      setHasNewMessages(false);
+      scrollToBottom();
+    }
+  };
 
   const handleScroll = () => {
     if (!wrapperRef.current) return;
@@ -40,49 +48,62 @@ const MessageList = ({ className }: MessageListProps) => {
       wrapperRef.current.addEventListener("scroll", handleScroll);
     }
 
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       if (wrapperRef.current) {
         wrapperRef.current.removeEventListener("scroll", handleScroll);
       }
+
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   useEffect(() => {
-    setUserScrolled(false);
-    scrollToBottom();
+    if (!userScrolled) {
+      scrollToBottom();
+    } else {
+      if (document.visibilityState === "hidden" && messages.length > 1) {
+        setHasNewMessages(true);
+      }
+      scrollToBottom();
+    }
   }, [messages]);
 
   return (
-    <Wrapper ref={wrapperRef} className={className}>
-      <List>
-        {messages.map((message, index) => {
-          return (
-            <>
-              {message.isServerMessage && (
-                <ServerEventMessage type={message.type} key={index}>
-                  <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
-                </ServerEventMessage>
-              )}
-              {message.isEXMessage && (
-                <EXMessage key={index}>
-                  <Username hexcode={message.hexcode}>{message.username}:</Username>
-                  {message.content}
-                </EXMessage>
-              )}
-              {!message.isServerMessage && !message.isEXMessage && (
-                <Message key={index}>
-                  <Username hexcode={message.hexcode}>{message.username}:</Username>
-                  {message.content}
-                </Message>
-              )}
-            </>
-          );
-        })}
-      </List>
-      {showScrollToBottom && userScrolled && (
-        <ScrollToBottomButton onClick={scrollToBottom}>Newer messages</ScrollToBottomButton>
-      )}
-    </Wrapper>
+    <>
+      <FaviconUpdater hasNewMessages={hasNewMessages} />
+      <Wrapper ref={wrapperRef} className={className}>
+        <List>
+          {messages.map((message, index) => {
+            return (
+              <>
+                {message.isServerMessage && (
+                  <ServerEventMessage type={message.type} key={index}>
+                    <Username hexcode={message.hexcode}>{message.username}</Username> {message.content}
+                  </ServerEventMessage>
+                )}
+                {message.isEXMessage && (
+                  <EXMessage key={index}>
+                    <Username hexcode={message.hexcode}>{message.username}:</Username>
+                    {message.content}
+                  </EXMessage>
+                )}
+                {!message.isServerMessage && !message.isEXMessage && (
+                  <Message key={index}>
+                    <Username hexcode={message.hexcode}>{message.username}:</Username>
+                    {message.content}
+                  </Message>
+                )}
+              </>
+            );
+          })}
+        </List>
+        {showScrollToBottom && userScrolled && (
+          <ScrollToBottomButton onClick={scrollToBottom}>Newer messages</ScrollToBottomButton>
+        )}
+      </Wrapper>
+    </>
   );
 };
 
