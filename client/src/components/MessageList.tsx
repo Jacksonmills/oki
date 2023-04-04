@@ -64,7 +64,10 @@ const MessageList = ({ className }: MessageListProps) => {
     if (document.visibilityState === "hidden" && messages.length > 1) {
       setHasNewMessages(true);
     }
-    if (document.visibilityState === "visible" || !userScrolled) {
+    if (document.visibilityState === "visible") {
+      scrollToBottom();
+    }
+    if (!userScrolled) {
       scrollToBottom();
     }
   }, [messages]);

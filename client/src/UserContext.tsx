@@ -26,8 +26,12 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
   const { addMessage } = useMessageContext();
   const [onlineUsers, setOnlineUsers] = useState<Map<string, UserObj>>(new Map());
   const [offlineUsers, setOfflineUsers] = useState<Map<string, UserHistory>>(new Map());
-  const [userCount, setUserCount] = useState(0);
+  const [userCount, setUserCount] = useState(onlineUsers.size);
   const [userHistory, setUserHistory] = useState<Map<string, UserHistory>>(new Map());
+
+  useEffect(() => {
+    setUserCount(onlineUsers.size);
+  }, [onlineUsers]);
 
   useEffect(() => {
     const handleUserConnectionEvent = (
@@ -63,7 +67,6 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
         }
         return updatedUserHistory;
       });
-      socket.emit('get-live-users-count');
     };
 
     const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
@@ -104,16 +107,10 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
       setOfflineUsers(offline);
     };
 
-
-    socket.emit('get-live-users-count');
-
-    socket.on('live-users-count', setUserCount);
     socket.on("user-history", handleUserHistory);
     socket.on('user-connected', (data) => handleConnection({ ...data, type: "connected" }));
     socket.on('user-disconnected', (data) => handleDisconnection({ ...data, type: "disconnected" }));
-
     return () => {
-      socket.off('live-users-count', setUserCount);
       socket.off("user-history", handleUserHistory);
       socket.off('user-connected', handleConnection);
       socket.off('user-disconnected', handleDisconnection);
