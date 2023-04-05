@@ -5,9 +5,11 @@ import { UserHistory, UserObj } from "./types";
 import { useLevelingContext } from "./LevelingContext";
 
 interface UserContextState {
-  onlineUsers: Map<string, UserObj>;
+  onlineUsers: Map<string, UserHistory>;
   offlineUsers: Map<string, UserHistory>;
   userCount: number;
+  currentRoomId: string;
+  setCurrentRoomId: React.Dispatch<React.SetStateAction<string>>;
   userHistory: Map<string, UserHistory>;
 }
 
@@ -15,6 +17,8 @@ const UserContext = createContext<UserContextState>({
   onlineUsers: new Map(),
   offlineUsers: new Map(),
   userCount: 0,
+  currentRoomId: "public",
+  setCurrentRoomId: () => { },
   userHistory: new Map(),
 });
 
@@ -24,9 +28,10 @@ export function useUserContext() {
 
 export function UserProvider({ children }: { children: React.ReactNode; }) {
   const { addMessage } = useMessageContext();
-  const [onlineUsers, setOnlineUsers] = useState<Map<string, UserObj>>(new Map());
+  const [onlineUsers, setOnlineUsers] = useState<Map<string, UserHistory>>(new Map());
   const [offlineUsers, setOfflineUsers] = useState<Map<string, UserHistory>>(new Map());
   const [userCount, setUserCount] = useState(onlineUsers.size);
+  const [currentRoomId, setCurrentRoomId] = useState("public");
   const [userHistory, setUserHistory] = useState<Map<string, UserHistory>>(new Map());
 
   useEffect(() => {
@@ -40,6 +45,7 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
         message: string,
         username: string,
         hexcode: string;
+        roomId: string;
         xp?: number;
         level?: number;
       }
@@ -51,7 +57,8 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
         isEXMessage: false,
         type: eventType,
         username: data.username,
-        hexcode: data.hexcode
+        hexcode: data.hexcode,
+        roomId: data.roomId,
       });
       setUserHistory((prevUserHistory) => {
         const updatedUserHistory = new Map(prevUserHistory);
@@ -69,11 +76,11 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
       });
     };
 
-    const handleConnection = (data: { message: string, username: string, hexcode: string; }) => {
+    const handleConnection = (data: { message: string, username: string, hexcode: string; roomId: string; }) => {
       handleUserConnectionEvent('connected', data);
     };
 
-    const handleDisconnection = (data: { message: string, username: string, hexcode: string; }) => {
+    const handleDisconnection = (data: { message: string, username: string, hexcode: string; roomId: string; }) => {
       handleUserConnectionEvent('disconnected', data);
     };
 
@@ -91,8 +98,8 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
 
       const updatedUserHistory = new Map<string, UserHistory>(userHistory);
 
-      const online = new Map<string, UserObj>();
-      const offline = new Map<string, UserObj>();
+      const online = new Map<string, UserHistory>();
+      const offline = new Map<string, UserHistory>();
 
       for (const [username, user] of updatedUserHistory.entries()) {
         if (user.status === "online") {
@@ -123,6 +130,8 @@ export function UserProvider({ children }: { children: React.ReactNode; }) {
         onlineUsers,
         offlineUsers,
         userCount,
+        currentRoomId,
+        setCurrentRoomId,
         userHistory
       }}
     >

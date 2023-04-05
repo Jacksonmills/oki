@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { socket } from './utils/socket';
-import LiveUsers from './components/LiveUsers';
-import UsernameModal from './components/UsernameModal';
-import Logo2 from './components/Logo2';
+import styled from 'styled-components';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
+import Logo2 from './components/Logo2';
+import UsernameModal from './components/UsernameModal';
+import LiveUsers from './components/LiveUsers';
 
-const App = () => {
+type ChatRoomProps = {
+  roomId: string;
+};
+
+const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
   const [showModal, setShowModal] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -15,7 +19,7 @@ const App = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleModalSubmit = (username: string, hexcode: string) => {
-    socket.emit('set-username', { username, hexcode, roomId: 'public' });
+    socket.emit('set-username', { username, hexcode, roomId });
     socket.once('username-set', () => {
       setShowModal(false);
     });
@@ -29,14 +33,13 @@ const App = () => {
       inputRef.current.focus();
     }
   }, [showModal]);
-
   return (
     <Wrapper>
       <Header>
         <HeaderContent>
           <LogoWrapper>
             <StyledLogo />
-            <LogoText>OKI</LogoText>
+            <LogoText>OKI: {roomId}</LogoText>
           </LogoWrapper>
           <LiveUsers
             showUserModal={showUserModal}
@@ -111,4 +114,4 @@ const HeaderContent = styled.div`
   padding: 8px 12px;
 `;
 
-export default App;
+export default ChatRoom;

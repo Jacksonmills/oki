@@ -1,19 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Username from './Username';
 import Modal from './Modal';
 import { X } from 'react-feather';
 import Dropdown from './Dropdown';
 import { useUserContext } from '../UserContext';
+import { useParams } from 'react-router-dom';
 
 type UserModalProps = {
   onClose: () => void;
 };
 
 export const UserModal = ({ onClose }: UserModalProps) => {
-  const { onlineUsers, offlineUsers } = useUserContext();
+  const { roomId } = useParams<{ roomId: string; }>();
+  const { onlineUsers, offlineUsers, currentRoomId, setCurrentRoomId } = useUserContext();
   const onlineUsersArray = Array.from(onlineUsers.values());
   const offlineUsersArray = Array.from(offlineUsers.values());
+
+  useEffect(() => {
+    if (roomId) {
+      setCurrentRoomId(roomId);
+    }
+  }, [roomId, setCurrentRoomId]);
+
+  const onlineUsersInRoom = onlineUsersArray.filter((user) => user.roomId === currentRoomId);
+  const offlineUsersInRoom = offlineUsersArray.filter((user) => user.roomId === currentRoomId);
 
   return (
     <Modal onClose={onClose}>
@@ -23,9 +34,9 @@ export const UserModal = ({ onClose }: UserModalProps) => {
           <X />
         </CloseButton>
       </Title>
-      <Dropdown title={`Online Users (${onlineUsersArray.length})`} defaultOpen>
+      <Dropdown title={`Online Users (${onlineUsersInRoom.length})`} defaultOpen>
         <UserList>
-          {onlineUsersArray.map((user, index) => (
+          {onlineUsersInRoom.map((user, index) => (
             <User key={index} status={user.status}>
               <Username hexcode={user.hexcode}>{user.username}</Username>
               <Status>
@@ -35,10 +46,10 @@ export const UserModal = ({ onClose }: UserModalProps) => {
           ))}
         </UserList>
       </Dropdown>
-      {offlineUsersArray.length > 0 && (
-        <Dropdown title={`Offline Users (${offlineUsersArray.length})`}>
+      {offlineUsersInRoom.length > 0 && (
+        <Dropdown title={`Offline Users (${offlineUsersInRoom.length})`}>
           <UserList>
-            {offlineUsersArray.map((user, index) => (
+            {offlineUsersInRoom.map((user, index) => (
               <User key={index} status={user.status}>
                 <Username hexcode={user.hexcode}>{user.username}</Username>
                 <Status>

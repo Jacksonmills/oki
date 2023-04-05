@@ -24,24 +24,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
   io.on('connection', (socket) => {
     console.log(`[${new Date().toISOString()}] 🟡 connecting...`);
 
-    socket.on('join-room', (roomId: string) => {
-      socket.join(roomId);
-      socket.to(roomId).emit('user-joined', socket.id);
-      const userHistoryEntry = userHistory.get(socket.id);
-      if (userHistoryEntry) {
-        userHistoryEntry.roomId = roomId;
-      }
-    });
-
-    socket.on('leave-room', (roomId: string) => {
-      socket.leave(roomId);
-      socket.to(roomId).emit('user-left', socket.id);
-      const userHistoryEntry = userHistory.get(socket.id);
-      if (userHistoryEntry) {
-        delete userHistoryEntry.roomId;
-      }
-    });
-
     socket.on('add-xp', (xpToAdd: number) => {
       const user = users.get(socket.id);
       if (user) {
@@ -92,7 +74,15 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
       }
     });
 
-    socket.on('set-username', ({ username, hexcode }) => {
+    socket.on('set-username', ({
+      username,
+      hexcode,
+      roomId = 'public'
+    }: {
+      username: string;
+      hexcode: string;
+      roomId: string;
+    }) => {
       if (!validateText(username)) {
         socket.emit('username-invalid');
       } else {
@@ -107,42 +97,37 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           xp: 0,
           level: 0,
           isLevelingUp: false,
+          roomId: roomId,
         };
 
         users.set(socket.id, newUser);
-        userHistory.set(socket.id, {
-          id: socket.id,
-          username,
-          hexcode,
-          status: 'online',
-          lastSeen: new Date(),
-          xp: 0,
-          level: 0,
-          isLevelingUp: false,
-          roomId: undefined,
-        });
+        userHistory.set(socket.id, newUser);
 
-        const userHistoryEntry = userHistory.get(socket.id);
+        socket.join(roomId);
+
         const userConnectedPayload = {
           type: 'connected',
           message: `has connected! 👋`,
           username: username,
-          hexcode: hexcode
+          hexcode: hexcode,
+          roomId: roomId,
         };
 
-        if (userHistoryEntry && userHistoryEntry.roomId) {
-          socket.to(userHistoryEntry.roomId).emit('user-connected', userConnectedPayload);
-        } else {
-          io.emit('user-connected', userConnectedPayload);
-        }
+        socket.to(roomId).emit('user-joined', userConnectedPayload);
+        io.to(roomId).emit('user-connected', userConnectedPayload);
+
         console.log(`[${new Date().toISOString()}] 🟢 ${username} connected!`);
+        // console.log(`user history:`, userHistory);
         const userHistoryObj = Object.fromEntries(userHistory.entries());
         io.emit('user-history', userHistoryObj);
-        socket.emit('live-users-count', users.size);
+
+        // emit the current users in roomId to the room they are in
+        const usersInRoom = Array.from(userHistory.values()).filter((user) => user.roomId === roomId);
+        socket.to(roomId).emit('live-users-count', usersInRoom.length);
       }
     });
 
-    socket.on('message', (message: string, roomId?: string) => {
+    socket.on('message', (message: string, roomId: string) => {
       const user = users.get(socket.id);
 
       const isValidMessage = validateText(message);
@@ -160,17 +145,15 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           isEXMessage: false,
           username: user.username,
           hexcode: user.hexcode,
+          roomId: roomId,
         };
 
-        if (roomId) {
-          socket.to(roomId).emit('message', messagePayload);
-        } else {
-          io.emit('message', messagePayload);
-        }
+        io.in(roomId).emit('message', messagePayload);
+        console.log(`[${new Date().toISOString()}] 🟢 ${user.username} sent a message: ${message} to room ${roomId}`);
       }
     });
 
-    socket.on('ex-message', (message: string, roomId?: string) => {
+    socket.on('ex-message', (message: string, roomId: string) => {
       const user = users.get(socket.id);
 
       const isExMessage = message.startsWith('/ex');
@@ -190,13 +173,11 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
           isEXMessage: true,
           username: user.username,
           hexcode: user.hexcode,
+          roomId: roomId,
         };
 
-        if (roomId) {
-          io.to(roomId).emit('ex-message', messagePayload);
-        } else {
-          io.emit('ex-message', messagePayload);
-        }
+        io.in(roomId).emit('ex-message', messagePayload);
+        console.log(`[${new Date().toISOString()}] 🟢 ${user.username} sent an ex-message: ${message} to room ${roomId}`);
       }
     });
 
@@ -206,18 +187,21 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         userHistoryEntry.status = 'offline';
         userHistoryEntry.disconnectTime = new Date();
 
+        const roomId = userHistoryEntry.roomId;
+
+        socket.leave(roomId);
+
         const userDisconnectedPayload = {
           type: 'disconnected',
           message: `has disconnected... 🔴`,
           username: userHistoryEntry.username,
-          hexcode: userHistoryEntry.hexcode
+          hexcode: userHistoryEntry.hexcode,
+          roomId: roomId,
         };
 
-        if (userHistoryEntry.roomId) {
-          socket.to(userHistoryEntry.roomId).emit('user-disconnected', userDisconnectedPayload);
-        } else {
-          socket.broadcast.emit('user-disconnected', userDisconnectedPayload);
-        }
+        socket.to(roomId).emit('user-left', userDisconnectedPayload);
+        socket.to(roomId).emit('user-disconnected', userDisconnectedPayload);
+
         console.log(`[${new Date().toISOString()}] 🔴 ${userHistoryEntry.username} disconnected.`);
         users.delete(socket.id);
 
@@ -233,25 +217,22 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
 
       const userHistoryObj = Object.fromEntries(userHistory.entries());
       io.emit('user-history', userHistoryObj);
-      socket.emit('live-users-count', users.size);
+
+      const usersInRoom = Array.from(userHistory.values()).filter((user) => user.roomId === userHistoryEntry?.roomId);
+      socket.emit('live-users-count', usersInRoom.length);
     });
 
-    socket.on('get-live-users-count', (roomId?: string) => {
+    socket.on('get-live-users-count', (roomId: string) => {
       const roomUserList = roomId
         ? Array.from(userHistory.values()).filter(user => user.roomId === roomId)
         : Array.from(userHistory.values());
-      socket.emit('live-users-count', roomUserList.length);
+      socket.to(roomId).emit('live-users-count', roomUserList.length);
     });
 
-    socket.on('get-user-history', (roomId?: string) => {
-      if (roomId) {
-        const roomUsersMap = new Map([...userHistory.entries()].filter(([userId, user]) => user.roomId === roomId));
-        const roomUserHistoryObj = Object.fromEntries(roomUsersMap.entries());
-        socket.emit('user-history', roomUserHistoryObj);
-      } else {
-        const userHistoryObj = Object.fromEntries(userHistory.entries());
-        socket.emit('user-history', userHistoryObj);
-      }
+    socket.on('get-user-history', (roomId: string) => {
+      const roomUsersMap = new Map([...userHistory.entries()].filter(([userId, user]) => user.roomId === roomId));
+      const roomUserHistoryObj = Object.fromEntries(roomUsersMap.entries());
+      socket.to(roomId).emit('user-history', roomUserHistoryObj);
     });
   });
 }

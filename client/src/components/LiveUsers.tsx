@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { User } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
 import { useUserContext } from '../UserContext';
+import { useParams } from 'react-router-dom';
 
 type LiveUsersProps = {
   showUserModal: boolean;
@@ -10,14 +11,19 @@ type LiveUsersProps = {
 };
 
 const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
-  const { userCount } = useUserContext();
-  const isLiveChat = userCount >= 2;
+  const { roomId } = useParams<{ roomId: string; }>();
+  const { onlineUsers, userCount, currentRoomId, setCurrentRoomId } = useUserContext();
+
+  const usersInCurrentRoom = Array.from(onlineUsers.values()).filter(user => user.roomId === currentRoomId);
+  const userCountInRoom = usersInCurrentRoom.length;
+  const isLiveChat = userCountInRoom >= 2;
+
 
   return (
     <Wrapper>
       <LiveUsersWrapper onClick={onToggleModal}>
         <StyledUser />{' '}
-        {userCount}
+        {userCountInRoom}
       </LiveUsersWrapper>
       {showUserModal && <UserModal onClose={onToggleModal} />}
       <DotWrapper>

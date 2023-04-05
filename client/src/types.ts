@@ -7,19 +7,20 @@ export interface UserObj {
   xp: number;
   level: number;
   isLevelingUp: boolean;
+  roomId: string;
 }
 
 export interface UserHistory extends UserObj {
   disconnectTime?: Date;
-  roomId?: string;
 }
 
 export type MessageObj = {
   username: string;
   hexcode: string;
   content: string;
-  isServerMessage: boolean;
-  isEXMessage: boolean;
+  roomId: string;
+  isEXMessage?: boolean;
+  isServerMessage?: boolean;
   type?: ServerMessageTypeUnion;
 };
 

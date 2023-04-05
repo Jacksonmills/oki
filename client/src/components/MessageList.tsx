@@ -5,13 +5,15 @@ import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
 import { useMessageContext } from "../MessageContext";
 import { COLORS } from "../constants";
 import FaviconUpdater from "./FaviconUpdater";
+import { useParams } from "react-router-dom";
 
 export type MessageListProps = {
   className?: string;
 };
 
 const MessageList = ({ className }: MessageListProps) => {
-  const { messages } = useMessageContext();
+  const { roomId } = useParams<{ roomId: string; }>();
+  const { roomMessages } = useMessageContext();
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
   const [hasNewMessages, setHasNewMessages] = useState(false);
@@ -61,7 +63,7 @@ const MessageList = ({ className }: MessageListProps) => {
   }, []);
 
   useEffect(() => {
-    if (document.visibilityState === "hidden" && messages.length > 1) {
+    if (document.visibilityState === "hidden" && roomMessages.length > 1) {
       setHasNewMessages(true);
     }
     if (document.visibilityState === "visible") {
@@ -70,14 +72,16 @@ const MessageList = ({ className }: MessageListProps) => {
     if (!userScrolled) {
       scrollToBottom();
     }
-  }, [messages]);
+  }, [roomMessages]);
+
+  console.log(`${roomId} messages`, roomMessages);
 
   return (
     <>
       <FaviconUpdater hasNewMessages={hasNewMessages} />
       <Wrapper ref={wrapperRef} className={className}>
         <List>
-          {messages.map((message, index) => {
+          {roomMessages.map((message, index) => {
             return (
               <>
                 {message.isServerMessage && (
