@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
 import { useUserContext } from '../UserContext';
 import { useParams } from 'react-router-dom';
+import Button from './Button';
 
 type LiveUsersProps = {
   showUserModal: boolean;
@@ -12,9 +13,9 @@ type LiveUsersProps = {
 
 const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
   const { roomId } = useParams<{ roomId: string; }>();
-  const { onlineUsers, userCount, currentRoomId, setCurrentRoomId } = useUserContext();
+  const { onlineUsers } = useUserContext();
 
-  const usersInCurrentRoom = Array.from(onlineUsers.values()).filter(user => user.roomId === currentRoomId);
+  const usersInCurrentRoom = Array.from(onlineUsers.values()).filter(user => user.roomId === roomId);
   const userCountInRoom = usersInCurrentRoom.length;
   const isLiveChat = userCountInRoom >= 2;
 
@@ -52,7 +53,7 @@ const StyledUser = styled(User)`
   height: ${18 / 16}rem;
 `;
 
-const LiveUsersWrapper = styled.button`
+const LiveUsersWrapper = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: center;

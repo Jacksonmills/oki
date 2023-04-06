@@ -6,6 +6,7 @@ import { X } from 'react-feather';
 import Dropdown from './Dropdown';
 import { useUserContext } from '../UserContext';
 import { useParams } from 'react-router-dom';
+import Button from './Button';
 
 type UserModalProps = {
   onClose: () => void;
@@ -105,7 +106,7 @@ const Status = styled.div`
   margin-left: auto;
 `;
 
-const CloseButton = styled.button`
+const CloseButton = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: center;

@@ -23,7 +23,6 @@ export function MessageProvider({ children }: { children: React.ReactNode; }) {
   const [roomMessages, setRoomMessages] = useState<MessageObj[]>([]);
 
   const addMessage = (message: MessageObj) => {
-    console.log('message received', message);
     setMessages((prevMessages) => {
       const updatedMessages = new Map(prevMessages);
 

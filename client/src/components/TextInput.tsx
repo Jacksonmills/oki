@@ -4,6 +4,7 @@ import UnstyledButton from './UnstyledButton';
 import { COLORS } from '../constants';
 import { getLevelColors } from '../utils/getLevelColors';
 import { useLevelingContext } from '../LevelingContext';
+import Button from './Button';
 
 type TextInputProps = {
   buttonContent: string | React.ReactNode,
@@ -47,7 +48,7 @@ const TextInput: React.FC<TextInputProps> = ({
         ref={forwardRef}
       />
       {contentIsString ? (
-        <Button type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</Button>
+        <StyledButton type="submit" onClick={onClick} disabled={disabled}>{buttonContent}</StyledButton>
       ) : (
         <StyledUnstyledButton
           foregroundColor={text}
@@ -101,7 +102,7 @@ const StyledUnstyledButton = styled(UnstyledButton) <{
   }
 `;
 
-const Button = styled.button`
+const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: center;

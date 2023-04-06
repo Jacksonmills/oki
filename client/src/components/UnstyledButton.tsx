@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import Button from './Button';
 
-export default styled.button`
+export default styled(Button)`
   display: block;
   margin: 0;
   padding: 0;

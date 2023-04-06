@@ -9,6 +9,7 @@ import { Send } from 'react-feather';
 import { useMessageContext } from '../MessageContext';
 import { useUserContext } from '../UserContext';
 import { useParams } from 'react-router-dom';
+import Button from './Button';
 
 type MessageInputProps = {
   className?: string;
@@ -103,7 +104,7 @@ const Form = styled.form`
   padding: 12px;
 `;
 
-const EmojiButton = styled.button`
+const EmojiButton = styled(Button)`
   position: relative;
   display: flex;
   align-items: center;

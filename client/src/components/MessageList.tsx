@@ -6,6 +6,7 @@ import { useMessageContext } from "../MessageContext";
 import { COLORS } from "../constants";
 import FaviconUpdater from "./FaviconUpdater";
 import { useParams } from "react-router-dom";
+import Button from "./Button";
 
 export type MessageListProps = {
   className?: string;
@@ -73,8 +74,6 @@ const MessageList = ({ className }: MessageListProps) => {
       scrollToBottom();
     }
   }, [roomMessages]);
-
-  console.log(`${roomId} messages`, roomMessages);
 
   return (
     <>
@@ -171,7 +170,7 @@ const ServerEventMessage = styled(Message) <{ type?: "connected" | "disconnected
   margin: 6px 12px;
 `;
 
-const ScrollToBottomButton = styled.button`
+const ScrollToBottomButton = styled(Button)`
   position: absolute;
   top: 82px;
   left: 50%;

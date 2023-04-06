@@ -7,6 +7,10 @@ import { MAX_LEVEL, XP_PER_LEVEL } from "../shared/levelingSystem";
 export function createSocketController(io: Server, users: Map<string, UserObj>, userHistory: Map<string, UserHistory>) {
   const disconnectTimeouts = new Map<string, NodeJS.Timeout>();
 
+  const getUsersInRoom = (roomId: string) => {
+    return Array.from(userHistory.values()).filter((user) => user.roomId === roomId);
+  };
+
   const updateUserHistoryXPAndLevel = (userId: string, newXp: number, newLevel: number) => {
     const userHistoryEntry = userHistory.get(userId);
     if (userHistoryEntry) {
@@ -117,7 +121,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         io.to(roomId).emit('user-connected', userConnectedPayload);
 
         console.log(`[${new Date().toISOString()}] 🟢 ${username} connected!`);
-        // console.log(`user history:`, userHistory);
         const userHistoryObj = Object.fromEntries(userHistory.entries());
         io.emit('user-history', userHistoryObj);
 
@@ -149,7 +152,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         };
 
         io.in(roomId).emit('message', messagePayload);
-        console.log(`[${new Date().toISOString()}] 🟢 ${user.username} sent a message: ${message} to room ${roomId}`);
       }
     });
 
@@ -177,7 +179,6 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
         };
 
         io.in(roomId).emit('ex-message', messagePayload);
-        console.log(`[${new Date().toISOString()}] 🟢 ${user.username} sent an ex-message: ${message} to room ${roomId}`);
       }
     });
 
@@ -220,6 +221,11 @@ export function createSocketController(io: Server, users: Map<string, UserObj>, 
 
       const usersInRoom = Array.from(userHistory.values()).filter((user) => user.roomId === userHistoryEntry?.roomId);
       socket.emit('live-users-count', usersInRoom.length);
+    });
+
+    socket.on('check-room-exists', (roomId: string, callback: (arg0: number) => number) => {
+      const roomUsers = getUsersInRoom(roomId);
+      callback(roomUsers.length);
     });
 
     socket.on('get-live-users-count', (roomId: string) => {

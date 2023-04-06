@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Modal from './Modal';
 import TextInput from './TextInput';
 import ColorSwatchPicker from './ColorSwatchPicker';
+import Error from './Error';
 
 type UsernameModalProps = {
   onSubmit: (username: string, hexcode: string) => void,
@@ -30,7 +31,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, errorMessage })
           onClick={handleSubmit}
           placeholder='Type a username...'
         />
-        {errorMessage && <Error>{errorMessage}</Error>}
+        {errorMessage && (<Error>{errorMessage}</Error>)}
         <ColorHeading>Pick a color!</ColorHeading>
         <ColorSwatchPicker
           onSelect={setHexcode}
@@ -40,10 +41,6 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, errorMessage })
     </Modal>
   );
 };
-
-const Error = styled.p`
-  color: #ff0000;
-`;
 
 const Form = styled.form`
   background-color: #333333;

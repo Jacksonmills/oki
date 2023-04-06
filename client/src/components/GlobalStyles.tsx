@@ -47,6 +47,7 @@ const GlobalStyles = createGlobalStyle`
   /* GLOBAL */
   html, body, #root {
     height: 100%;
+    width: 100%;
   }
   *,
   *:before,
@@ -58,7 +59,10 @@ const GlobalStyles = createGlobalStyle`
     -moz-osx-font-smoothing: auto;
   }
   #root {
+    color-scheme: dark light;
     isolation: isolate;
+    background-color: #242424;
+    color: #ffffff;
   }
   /* FONTS */
   @font-face {
@@ -66,6 +70,13 @@ const GlobalStyles = createGlobalStyle`
     src: url('/fonts/gridular/Gridular-Regular.woff2') format('woff2'), url('/fonts/gridular/Gridular-Regular.woff') format('woff');
     font-style: normal;
     font-display: swap;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      color: #000000;
+      background-color: #ffffff;
+    }
   }
 `;
 
