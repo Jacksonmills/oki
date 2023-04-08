@@ -114,7 +114,7 @@ const MessageList = ({ className }: MessageListProps) => {
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
