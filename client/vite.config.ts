@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'OKI',
         short_name: 'OKI',
         description: 'Anonymous, temporary, Twitch-like chat experiences for live events.',
-        theme_color: '#ffffff',
+        theme_color: '#2b2a33',
         icons: [
           {
             src: 'pwa-192x192.png',

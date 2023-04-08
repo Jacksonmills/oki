@@ -40,8 +40,10 @@ const App = () => {
     <Layout>
       <Wrapper>
         <Content>
-          <Heading><Logo />OKI</Heading>
-          <p>Anonymous, temporary, Twitch-like chat experiences for live events.</p>
+          <Hero>
+            <Heading><Logo />OKI</Heading>
+            <p>Anonymous, temporary, Twitch-like chat experiences for live events.</p>
+          </Hero>
           <Actions>
             <Button onClick={() => setShowCreateModal(!showCreateModal)}>Create Room</Button>
             <Button onClick={() => setShowJoinModal(!showJoinModal)}>Join Room</Button>
@@ -130,6 +132,17 @@ const PublicRoomLink = styled(Button)`
   svg {
     width: 1em;
     height: 1em;
+  }
+`;
+
+const Hero = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    text-align: center;
   }
 `;
 
