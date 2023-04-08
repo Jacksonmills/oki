@@ -7,6 +7,7 @@ import Logo from './components/Logo';
 import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
 import Layout from './components/Layout';
+import { createPortal } from 'react-dom';
 
 type ChatRoomProps = {
   roomId: string;
@@ -39,11 +40,12 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
         <StyledMessageList />
         <StyledMessageInput ref={inputRef} />
 
-        {showModal && (
+        {showModal && createPortal(
           <UsernameModal
             onSubmit={handleModalSubmit}
             errorMessage={errorMessage}
-          />
+          />,
+          document.body
         )}
       </Layout>
     </Wrapper>

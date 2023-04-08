@@ -90,7 +90,6 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, MessageInpu
 const Wrapper = styled.div`
   width: 100%;
   position: fixed;
-  z-index: 1;
   bottom: 0;
   background-color: #242424;
 `;

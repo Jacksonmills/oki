@@ -10,6 +10,7 @@ import Error from './components/Error';
 import Layout from './components/Layout';
 import VisuallyHidden from './components/VisuallyHidden';
 import { Users } from 'react-feather';
+import { createPortal } from 'react-dom';
 
 const App = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -47,7 +48,7 @@ const App = () => {
           </Actions>
         </Content>
 
-        {showCreateModal && (
+        {showCreateModal && createPortal(
           <Modal onClose={() => setShowCreateModal(!showCreateModal)}>
             <ModalTitle>Create a room</ModalTitle>
             <form onSubmit={handleCreateRoomSubmit}>
@@ -58,9 +59,10 @@ const App = () => {
                 onChange={setRoomNameToCreate}
               />
             </form>
-          </Modal>
+          </Modal>,
+          document.body
         )}
-        {showJoinModal && (
+        {showJoinModal && createPortal(
           <Modal onClose={() => setShowJoinModal(!showJoinModal)}>
             <ModalTitle>Join a room</ModalTitle>
             <JoinActions>
@@ -78,7 +80,8 @@ const App = () => {
                 {joinError && <Error>{joinError}</Error>}
               </form>
             </JoinActions>
-          </Modal>
+          </Modal>,
+          document.body
         )}
       </Wrapper>
     </Layout>

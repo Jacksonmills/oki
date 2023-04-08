@@ -5,6 +5,7 @@ import { UserModal } from './UserModal';
 import { useUserContext } from '../UserContext';
 import { useParams } from 'react-router-dom';
 import Button from './Button';
+import { createPortal } from 'react-dom';
 
 type LiveUsersProps = {
   showUserModal: boolean;
@@ -26,7 +27,10 @@ const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
         {isLiveChat ? <StyledUsers /> : <StyledUser />}{' '}
         {roomId ? userCountInRoom : onlineUsers.size}
       </LiveUsersWrapper>
-      {(showUserModal && roomId) && <UserModal onClose={onToggleModal} />}
+      {(showUserModal && roomId) && createPortal(
+        <UserModal onClose={onToggleModal} />,
+        document.body
+      )}
       <DotWrapper>
         {isLiveChat ? (
           <>
