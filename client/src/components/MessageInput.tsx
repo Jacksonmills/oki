@@ -13,8 +13,6 @@ type MessageInputProps = {
 };
 
 const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
-export const MESSAGE_INPUT_HEIGHT = '96px';
-export const HEADER_HEIGHT = '54px';
 
 const getRandomEmoji = () => {
   const randomIndex = Math.floor(Math.random() * emojis.length);
@@ -33,6 +31,33 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, MessageInpu
 
   const inputRef = useRef<HTMLInputElement>(null);
   useImperativeHandle(forwardRef, () => inputRef.current as HTMLInputElement, []);
+
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const prevActiveElementRef = useRef<Element | null>(null);
+
+  const handleInputFocus = () => {
+    prevActiveElementRef.current = inputRef.current;
+  };
+
+  const handleInputBlur = (e: FocusEvent) => {
+    if (e.relatedTarget !== emojiButtonRef.current) {
+      prevActiveElementRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('focus', handleInputFocus);
+      input.addEventListener('blur', handleInputBlur);
+    }
+    return () => {
+      if (input) {
+        input.removeEventListener('focus', handleInputFocus);
+        input.removeEventListener('blur', handleInputBlur);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     setNextEmoji(getRandomEmoji());
@@ -65,13 +90,21 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, MessageInpu
     socket.emit('remove-xp', xpCost);
     removeXp(xpCost);
     setNextEmoji(getRandomEmoji());
-    inputRef.current?.focus();
+    console.log(`prevActiveElementRef.current: ${prevActiveElementRef.current}`);
+    if (prevActiveElementRef.current === inputRef.current) {
+      inputRef.current?.focus();
+    }
   };
 
   return (
     <Wrapper className={className}>
       <Form onSubmit={handleSubmit}>
-        <EmojiButton type="button" onClick={handleEmojiClick} disabled={isNoob(1)}>
+        <EmojiButton
+          ref={emojiButtonRef}
+          type="button"
+          onClick={handleEmojiClick}
+          disabled={isNoob(1)}
+        >
           {nextEmoji}
         </EmojiButton>
         <XPBar />
