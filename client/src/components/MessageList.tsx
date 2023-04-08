@@ -120,8 +120,6 @@ const Wrapper = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
-  margin-top: ${HEADER_HEIGHT};
-  margin-bottom: ${MESSAGE_INPUT_HEIGHT};
 `;
 
 const List = styled.ul`

@@ -52,8 +52,6 @@ const LogoWrapper = styled.div`
 `;
 
 const Wrapper = styled.header`
-  position: fixed;
-  top: 0;
   width: 100%;
 `;
 
