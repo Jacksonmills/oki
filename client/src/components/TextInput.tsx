@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import UnstyledButton from './UnstyledButton';
-import { COLORS } from '../constants';
 import { getLevelColors } from '../utils/getLevelColors';
 import { useLevelingContext } from '../LevelingContext';
 import Button from './Button';
+import { COLORS } from '../constants';
 
 type TextInputProps = {
   buttonContent: string | React.ReactNode,
@@ -68,6 +68,7 @@ const Input = styled.input`
   width: 100%;
   border: none;
   background-color: transparent;
+  color: ${COLORS.text};
   padding: 0 0.5em;
   font-size: ${16 / 16}rem;
 
@@ -109,8 +110,8 @@ const StyledButton = styled(Button)`
   border-radius: 6px;
   border-top-left-radius: 1px;
   border-bottom-left-radius: 1px;
-  background-color: #17171c;
-  color: white;
+  background-color: ${COLORS.backgroundDark};
+  color: ${COLORS.text};
   transition: all 250ms ease;
 
   &[disabled] {
@@ -136,7 +137,7 @@ const Wrapper = styled.div`
   background-color: #2b2a33;
 
   &:hover {
-    border-color: #646cff;
+    border-color: ${COLORS.primary};
   }
   &:focus {
     outline: none;

@@ -1,5 +1,6 @@
 import React, { ElementType, MouseEvent } from 'react';
 import styled from 'styled-components';
+import { COLORS } from '../constants';
 
 type ModalProps = {
   children: React.ReactNode,
@@ -42,16 +43,15 @@ const Wrapper = styled.div<{
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #333333;
-  color: #ffffff;
-  border-radius: 4px;
+  background-color: ${COLORS.background};
+  color: ${COLORS.text};
+  border-radius: 8px;
   cursor: initial;
   
-  padding: 12px;
-  width: 80vw;
+  padding: 32px 22px;
+  width: 90vw;
   @media (min-width: 768px) {
-    padding: 22px;
-    width: 48vw;
+    width: 448px;
   }
 
   > * {

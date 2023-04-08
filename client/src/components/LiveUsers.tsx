@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { User } from 'react-feather';
+import React from 'react';
+import { User, Users } from 'react-feather';
 import styled, { keyframes } from 'styled-components';
 import { UserModal } from './UserModal';
 import { useUserContext } from '../UserContext';
@@ -22,11 +22,11 @@ const LiveUsers = ({ showUserModal, onToggleModal }: LiveUsersProps) => {
 
   return (
     <Wrapper>
-      <LiveUsersWrapper onClick={onToggleModal}>
-        <StyledUser />{' '}
-        {userCountInRoom}
+      <LiveUsersWrapper roomId={roomId} onClick={onToggleModal}>
+        {isLiveChat ? <StyledUsers /> : <StyledUser />}{' '}
+        {roomId ? userCountInRoom : onlineUsers.size}
       </LiveUsersWrapper>
-      {showUserModal && <UserModal onClose={onToggleModal} />}
+      {(showUserModal && roomId) && <UserModal onClose={onToggleModal} />}
       <DotWrapper>
         {isLiveChat ? (
           <>
@@ -53,18 +53,28 @@ const StyledUser = styled(User)`
   height: ${18 / 16}rem;
 `;
 
-const LiveUsersWrapper = styled(Button)`
+const StyledUsers = styled(Users)`
+  width: ${18 / 16}rem;
+  height: ${18 / 16}rem;
+`;
+
+const LiveUsersWrapper = styled(Button) <{
+  roomId?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   background-color: #171717;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   padding: 0.25rem 0.5rem;
   color: red;
   font-weight: bold;
   font-size: 1rem;
   border: none;
+  ${({ roomId }) => !roomId && `
+    pointer-events: none;
+  `}
 `;
 
 const pulse = keyframes`

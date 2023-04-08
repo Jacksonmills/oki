@@ -3,9 +3,10 @@ import { socket } from './utils/socket';
 import styled from 'styled-components';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
-import Logo2 from './components/Logo2';
+import Logo from './components/Logo';
 import UsernameModal from './components/UsernameModal';
 import LiveUsers from './components/LiveUsers';
+import Layout from './components/Layout';
 
 type ChatRoomProps = {
   roomId: string;
@@ -13,7 +14,6 @@ type ChatRoomProps = {
 
 const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
   const [showModal, setShowModal] = useState(true);
-  const [showUserModal, setShowUserModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,56 +35,22 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
   }, [showModal]);
   return (
     <Wrapper>
-      <Header>
-        <HeaderContent>
-          <LogoWrapper>
-            <StyledLogo />
-            <LogoText>OKI: {roomId}</LogoText>
-          </LogoWrapper>
-          <LiveUsers
-            showUserModal={showUserModal}
-            onToggleModal={() => setShowUserModal(!showUserModal)}
-          />
-        </HeaderContent>
-      </Header>
-      <StyledMessageList />
-      <StyledMessageInput ref={inputRef} />
+      <Layout>
+        <StyledMessageList />
+        <StyledMessageInput ref={inputRef} />
 
-      {showModal && (
-        <UsernameModal
-          onSubmit={handleModalSubmit}
-          errorMessage={errorMessage}
-        />
-      )}
+        {showModal && (
+          <UsernameModal
+            onSubmit={handleModalSubmit}
+            errorMessage={errorMessage}
+          />
+        )}
+      </Layout>
     </Wrapper>
   );
 };
 
-const StyledLogo = styled(Logo2)`
-  width: 1em;
-  height: 1em;
-`;
-const LogoText = styled.h1`
-  display: none;
-  font-size: 18px;
-  color: #fff;
-  margin: 0;
-  font-family: 'gridular';
 
-  @media (min-width: 768px) {
-    display: inline-flex;
-  }
-`;
-const LogoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-`;
-
-const Header = styled.header`
-  width: 100%;
-`;
 
 const StyledMessageList = styled(MessageList)``;
 const StyledMessageInput = styled(MessageInput) <{
@@ -95,23 +61,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-
-  ${Header}, ${StyledMessageInput} {
-    flex-shrink: 0;
-  }
-  ${StyledMessageList} {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #2b2a33;
-  padding: 8px 12px;
 `;
 
 export default ChatRoom;

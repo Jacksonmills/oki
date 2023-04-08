@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Logo2 from './components/Logo2';
+import Logo from './components/Logo';
 import Button from './components/Button';
 import Modal from './components/Modal';
 import TextInput from './components/TextInput';
 import { useNavigate } from 'react-router-dom';
 import { socket } from './utils/socket';
 import Error from './components/Error';
+import Layout from './components/Layout';
+import VisuallyHidden from './components/VisuallyHidden';
+import { Users } from 'react-feather';
 
 const App = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -33,52 +36,67 @@ const App = () => {
   };
 
   return (
-    <Wrapper>
-      <Content>
-        <Heading><Logo2 />OKI</Heading>
-        <Actions>
-          <Button onClick={() => setShowCreateModal(!showCreateModal)}>Create Room</Button>
-          <Button onClick={() => setShowJoinModal(!showJoinModal)}>Join Room</Button>
-        </Actions>
-      </Content>
+    <Layout>
+      <Wrapper>
+        <Content>
+          <Heading><Logo />OKI</Heading>
+          <p>Anonymous, temporary, Twitch-like chat experiences for live events.</p>
+          <Actions>
+            <Button onClick={() => setShowCreateModal(!showCreateModal)}>Create Room</Button>
+            <Button onClick={() => setShowJoinModal(!showJoinModal)}>Join Room</Button>
+          </Actions>
+        </Content>
 
-      {showCreateModal && (
-        <Modal onClose={() => setShowCreateModal(!showCreateModal)}>
-          <h1>Create a room</h1>
-          <form onSubmit={handleCreateRoomSubmit}>
-            <TextInput
-              placeholder="Enter a room name"
-              buttonContent="Create"
-              value={roomNameToCreate}
-              onChange={setRoomNameToCreate}
-            />
-          </form>
-        </Modal>
-      )}
-      {showJoinModal && (
-        <Modal onClose={() => setShowJoinModal(!showJoinModal)}>
-          <h1>Join a room</h1>
-          <JoinActions>
-            <a href="/room/public">Join public chat</a>
-            <form onSubmit={handleJoinRoomSubmit}>
+        {showCreateModal && (
+          <Modal onClose={() => setShowCreateModal(!showCreateModal)}>
+            <ModalTitle>Create a room</ModalTitle>
+            <form onSubmit={handleCreateRoomSubmit}>
               <TextInput
-                placeholder="Enter room name to join"
-                buttonContent="Join"
-                value={roomNameToJoin}
-                onChange={setRoomNameToJoin}
+                placeholder="Enter a room name"
+                buttonContent="Create"
+                value={roomNameToCreate}
+                onChange={setRoomNameToCreate}
               />
-              {joinError && <Error>{joinError}</Error>}
             </form>
-          </JoinActions>
-        </Modal>
-      )}
-    </Wrapper>
+          </Modal>
+        )}
+        {showJoinModal && (
+          <Modal onClose={() => setShowJoinModal(!showJoinModal)}>
+            <ModalTitle>Join a room</ModalTitle>
+            <JoinActions>
+              <PublicRoomLink as="a" href="/room/public">
+                Join public chatroom
+                <Users />
+              </PublicRoomLink>
+              <form onSubmit={handleJoinRoomSubmit}>
+                <TextInput
+                  placeholder="Enter room name to join"
+                  buttonContent="Join"
+                  value={roomNameToJoin}
+                  onChange={setRoomNameToJoin}
+                />
+                {joinError && <Error>{joinError}</Error>}
+              </form>
+            </JoinActions>
+          </Modal>
+        )}
+      </Wrapper>
+    </Layout>
   );
 };
 
+const ModalTitle = styled.h2`
+  text-align: center;
+  font-size: ${26 / 16}rem;
+`;
+
 const Wrapper = styled.div`
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
   height: 100%;
 `;
 
@@ -97,6 +115,19 @@ const Actions = styled.div`
 
 const JoinActions = styled.div`
   display: flex;
+  flex-direction: column-reverse;
+  gap: 1rem;
+`;
+
+const PublicRoomLink = styled(Button)`
+  gap: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+
+  svg {
+    width: 1em;
+    height: 1em;
+  }
 `;
 
 const Heading = styled.h1`

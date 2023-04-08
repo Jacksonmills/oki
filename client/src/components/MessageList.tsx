@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Username from "./Username";
-import { MESSAGE_INPUT_HEIGHT } from "./MessageInput";
+import { HEADER_HEIGHT, MESSAGE_INPUT_HEIGHT } from "./MessageInput";
 import { useMessageContext } from "../MessageContext";
 import { COLORS } from "../constants";
 import FaviconUpdater from "./FaviconUpdater";
@@ -120,6 +120,7 @@ const Wrapper = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
+  margin-top: ${HEADER_HEIGHT};
   margin-bottom: ${MESSAGE_INPUT_HEIGHT};
 `;
 
@@ -135,8 +136,9 @@ const List = styled.ul`
 `;
 
 const Message = styled.li`
-  padding: 0 12px;
+  padding: 0 24px 0 12px;
   max-width: 100vw;
+  word-break: break-all;
 `;
 
 const EXMessage = styled(Message)`

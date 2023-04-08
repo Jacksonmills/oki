@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit, Edit2, Edit3 } from 'react-feather';
+import { Edit } from 'react-feather';
 import styled from 'styled-components';
 import { useUserContext } from '../UserContext';
 

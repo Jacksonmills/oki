@@ -4,6 +4,7 @@ import Modal from './Modal';
 import TextInput from './TextInput';
 import ColorSwatchPicker from './ColorSwatchPicker';
 import Error from './Error';
+import { COLORS } from '../constants';
 
 type UsernameModalProps = {
   onSubmit: (username: string, hexcode: string) => void,
@@ -43,9 +44,6 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, errorMessage })
 };
 
 const Form = styled.form`
-  background-color: #333333;
-  color: #ffffff;
-  border-radius: 4px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -57,10 +55,12 @@ const Form = styled.form`
 
 const Heading = styled.h2`
   text-align: center;
+  font-size: ${26 / 16}rem;
 `;
 
 const ColorHeading = styled.h3`
   text-align: center;
+  font-size: ${22 / 16}rem;
 `;
 
 export default UsernameModal;

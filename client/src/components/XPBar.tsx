@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import styled, { css } from 'styled-components';
 import { useLevelingContext } from '../LevelingContext';
 import { LevelColors, getLevelColors } from '../utils/getLevelColors';

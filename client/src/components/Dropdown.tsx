@@ -47,8 +47,8 @@ const DropdownTitle = styled.h3<{
       border-bottom-left-radius: 0;
     }
     100% {
-      border-bottom-right-radius: 0.25rem;
-      border-bottom-left-radius: 0.25rem;
+      border-bottom-right-radius: 8px;
+      border-bottom-left-radius: 8px;
     }
   }
 
@@ -59,8 +59,8 @@ const DropdownTitle = styled.h3<{
   margin: 0;
   padding: 0.5rem;
   background-color: #17171c;
-  border-top-left-radius: 0.25rem;
-  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   transition: border-radius 0.06s ease;
   animation: ${({ isOpen }) => (!isOpen ? 'borderRadiusChange 0.24s forwards' : 'none')};
 `;
@@ -74,7 +74,7 @@ const DropdownContent = styled.div<{
   padding: 0.5rem;
   border: 4px solid #17171c;
   border-top: none;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
   transition: max-height 0.3s ease, opacity 0.3s ease;

@@ -4,10 +4,7 @@ import TextInput from './TextInput';
 import XPBar from './XPBar';
 import { socket } from '../utils/socket';
 import { useLevelingContext } from '../LevelingContext';
-import useLevelingSystem from '../hooks/use-leveling-system';
 import { Send } from 'react-feather';
-import { useMessageContext } from '../MessageContext';
-import { useUserContext } from '../UserContext';
 import { useParams } from 'react-router-dom';
 import Button from './Button';
 
@@ -16,7 +13,8 @@ type MessageInputProps = {
 };
 
 const emojis = ['🎉', '🎊', '🎈', '🎭', '🎤', '🎥', '🍿', '🎮', '🕹️', '👾', '🎲', '🃏', '🀄', '😂', '🤣', '😍', '🤔', '😢', '😠', '😎', '🤯', '👍', '👎', '🙌', '🤝', '👏', '👊', '✌️', '👋'];
-export const MESSAGE_INPUT_HEIGHT = '86px';
+export const MESSAGE_INPUT_HEIGHT = '96px';
+export const HEADER_HEIGHT = '54px';
 
 const getRandomEmoji = () => {
   const randomIndex = Math.floor(Math.random() * emojis.length);
@@ -28,8 +26,6 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, MessageInpu
   forwardRef,
 ) => {
   const { roomId } = useParams<{ roomId: string; }>();
-  const { userHistory } = useUserContext();
-  const { addMessage } = useMessageContext();
   const { xp, level, addXp, removeXp } = useLevelingContext();
   const [input, setInput] = useState('');
   const [nextEmoji, setNextEmoji] = useState(getRandomEmoji());
@@ -94,6 +90,7 @@ const MessageInput: React.ForwardRefRenderFunction<HTMLInputElement, MessageInpu
 const Wrapper = styled.div`
   width: 100%;
   position: fixed;
+  z-index: 1;
   bottom: 0;
   background-color: #242424;
 `;
